@@ -1,7 +1,17 @@
 @tailwind base;
 
 @import 'base';
-@import "element-reset";
+@import 'colors';
+@import 'element-reset/index';
+@import 'element-reset/inputs';
+@import 'element-reset/button';
+@import 'element-reset/radio';
+@import 'element-reset/drawer';
+@import 'element-reset/tabs';
+@import 'element-reset/image';
+@import 'element-reset/calendar';
+@import 'element-reset/step';
+@import 'element-reset/pagination';
 
 @tailwind components;
 @tailwind utilities;

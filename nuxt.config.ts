@@ -9,6 +9,21 @@ export default defineNuxtConfig({
 
   modules: [
     ['@nuxtjs/tailwindcss', { viewer: false }],
-    '@vueuse/nuxt'
-  ]
+    '@vueuse/nuxt',
+    '@element-plus/nuxt',
+    '@nuxtjs/supabase',
+    '@pinia/nuxt'
+  ],
+
+  // supabase: {
+  //   redirect: 'login'
+  // },
+
+  ssr: false,
+
+  app: {
+    head: {
+      title: 'Photographer'
+    }
+  }
 })

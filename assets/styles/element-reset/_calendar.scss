@@ -1,0 +1,33 @@
+.el-calendar {
+  & .el-button-group {
+    @apply hidden md:block
+  };
+
+  & .el-calendar__title {
+    @apply text-[18px] md:text-[20px]
+  };
+
+  & th {
+    @apply text-[14px] md:text-[20px]
+  };
+
+  & .el-calendar-day p {
+    @apply text-[14px] md:text-[16px] lg:text-[18px]
+  };
+
+  & .el-calendar-table__row {
+    @apply h-16
+  }
+}
+
+.is-selected {
+  @apply bg-green-80 h-full text-white-100
+}
+
+.is-disable {
+  @apply bg-white-100 text-grey-50 h-full
+}
+
+.is-available {
+  @apply bg-green-40 text-green-100 h-full
+}

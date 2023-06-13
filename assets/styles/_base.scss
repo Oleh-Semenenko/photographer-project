@@ -3,3 +3,93 @@ body,
 #__nuxt {
     @apply h-full;
 }
+
+* {
+    box-sizing: border-box;
+    -webkit-tap-highlight-color: rgba(0, 0, 0, 0) !important;
+}
+
+html {
+    @apply text-black-100 text-[20px] font-light leading-[1.6];
+}
+
+body {
+    font-family: 'Merriweather Sans', sans-serif;
+    @apply bg-background-color
+}
+
+a {
+    text-decoration: none;
+    color: inherit;
+
+    &:focus {
+        user-select: none;
+    }
+    &:hover {
+        color: var(--green-80)
+    }
+}
+
+img, svg {
+    display: block;
+}
+
+h1, h2, h3, h4, h5, h6 {
+    font-family: 'Merriweather', sans;
+    font-weight: 400;
+}
+
+.after-element::after {
+    content: '';
+    display: block;
+    width: 100px;
+    height: 28px;
+    border-radius: 2px;
+    position: absolute;
+    top: 0;
+    left: 16px;
+    z-index: -10;
+    background-color: #E0F3E6;
+}
+
+
+@media (max-width: 541px) {
+    .after-element::after {
+        width: 250px;
+}
+}
+@media (min-width: 541px) {
+    .after-element::after {
+        height: 16px;
+        width: 300px;
+}
+}
+
+@media (max-width: 640px) {
+    .after-element::after {
+        height: 16px;
+}
+}
+
+@media (min-width: 641px) {
+    .after-element::after {
+        height: 20px;
+        width: 350px;
+}
+}
+
+@media (min-width: 769px) {
+    .after-element::after {
+        height: 28px;
+        width: 500px;
+}
+}
+
+
+.after-element.light::after {
+    background-color: #fff;
+}
+
+.router-link-active {
+    color: var(--green-80);
+}

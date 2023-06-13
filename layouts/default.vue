@@ -1,51 +1,129 @@
 <template>
-  <div class="flex h-full">
-    <!-- SIDEBAR -->
-    <div class="w-[300px] border-r border-gray-300 flex flex-col">
-      <div class="h-20 flex items-center justify-center shrink-0 border-b border-gray-300 shadow">Logo</div>
-      <div class="flex-grow p-5">
-        <NuxtLink
-          v-for="item in navigation"
-          :key="item.name"
-          :to="{ name: item.name }"
-          :class="[
-            'text-gray-600 hover:bg-gray-50 hover:text-gray-900',
-            'group flex items-center px-2 py-2 text-sm font-medium rounded-md'
-          ]"
-          active-class="bg-gray-100 text-gray-900"
-        >
-          {{ item.meta?.pageLabel }}
-        </NuxtLink>
-      </div>
-    </div>
-
-    <div class="flex-grow flex flex-col">
+  <div class="flex-grow flex flex-col mx-auto">
+    <el-container class="flex h-full">
       <!-- HEADER -->
-      <div class="shrink-0 flex items-center h-20 bg-white shadow border-b border-gray-300 px-5">
-        <Compute
-          #default="{ labelClass, pageLabel }"
-          :labelClass="'font-bold text-lg'"
-          :pageLabel="$route.meta?.pageLabel"
-        >
-          <slot name="header" :labelClass="labelClass" :pageLabel="pageLabel">
-            <p :class="labelClass">{{ pageLabel }}</p>
-          </slot>
-        </Compute>
-      </div>
+      <AppHeader class="bg-white-100">
+        <div class="hidden md:flex items-center">
+          <nav class="border-r border-r-green-80 shrink-0 pr-3 md:pr-7 lg:pr-11 inline-flex h-[52px]">
+            <ul
+              class="text-[14px] md:text-[16px] lg:text-[18px] flex justify-between items-center
+            gap-3 md:gap-7 lg:gap-11 leading-8"
+            >
+              <li>
+                <NuxtLink :to="{name: 'catalog'}">
+                  Catalog
+                </NuxtLink>
+              </li>
+              <li class="shrink-0">
+                <NuxtLink :to="{name: 'photographer'}">
+                  My account
+                </NuxtLink>
+              </li>
+              <li>
+                <NuxtLink :to="{name: 'photographer-orders'}">
+                  Orders
+                </NuxtLink>
+              </li>
+            </ul>
+          </nav>
+
+          <div
+            class="ml-3 md:ml-7 lg:ml-11 flex items-center justify-center w-[40px] md:w-[60px] h-[40px] md:h-[60px]
+            rounded-full shrink-0 overflow-hidden
+            border-[3px] border-green-40"
+          >
+            <NameAbbr v-if="!user?.user_metadata?.avatarUrl" class="text-lg" />
+            <el-avatar
+              v-else
+              class="w-full h-full"
+              size="large"
+            >
+              <img
+                :src="user?.user_metadata?.avatarUrl"
+              >
+            </el-avatar>
+          </div>
+
+          <el-button text class="ml-3" @click="onLogoutClick">Log out</el-button>
+        </div>
+
+        <div class="md:hidden">
+          <el-dropdown trigger="click">
+            <div class="flex items-center ">
+              <div
+                class="ml-3 md:ml-7 lg:ml-11 flex items-center justify-center w-[50px] md:w-[60px] h-[50px] md:h-[60px]
+            rounded-full shrink-0 overflow-hidden
+            border-[3px] border-green-40"
+              >
+                <NameAbbr v-if="!user?.user_metadata?.avatarUrl" class="text-lg" />
+                <img
+                  v-else
+                  class="object-cover"
+                  :src="user?.user_metadata?.avatarUrl"
+                  alt="avatar"
+                >
+              </div>
+              <IconArrowRight class="rotate-90" />
+            </div>
+
+            <template #dropdown>
+              <el-dropdown-menu>
+                <el-dropdown-item>
+                  <NuxtLink :to="{name: 'catalog'}">
+                    Catalog
+                  </NuxtLink>
+                </el-dropdown-item>
+                <el-dropdown-item>
+                  <NuxtLink :to="{name: 'photographer'}">
+                    My account
+                  </NuxtLink>
+                </el-dropdown-item>
+                <el-dropdown-item>
+                  <NuxtLink :to="{name: 'photographer-orders'}">
+                    Orders
+                  </NuxtLink>
+                </el-dropdown-item>
+                <el-dropdown-item divided>
+                  <el-button text class="" @click="onLogoutClick">Log out</el-button>
+                </el-dropdown-item>
+              </el-dropdown-menu>
+            </template>
+          </el-dropdown>
+        </div>
+      </AppHeader>
 
       <!-- MAIN -->
-      <main class="flex-grow p-5">
+      <el-main class="flex-grow py-10 border-b-[28px] border-b-grey-30">
         <slot />
-      </main>
-    </div>
+      </el-main>
+
+      <!-- FOOTER -->
+      <el-footer class="flex items-start justify-between gap-5 px-6 py-8 bg-white-100">
+        <AppFooter />
+      </el-footer>
+    </el-container>
   </div>
 </template>
 
 <script lang="ts" setup>
-const router = useRouter()
+import { useAuthStore } from '../store/auth'
+const user = useSupabaseUser()
 
-const navigation = router.options.routes
-  .slice()
-  .map(({ name, meta }) => ({ name: name as TRouteNames, meta }))
-  .sort((a, b) => (a.meta?.navOrder ?? 0) - (b.meta?.navOrder ?? 0))
+const authStore = useAuthStore()
+const { logout } = authStore
+
+function onLogoutClick () {
+  logout()
+  navigateTo('/login')
+}
 </script>
+
+<style lang="scss" scoped>
+.el-input__inner {
+  height: 52px;
+}
+.el-button.is-text:not(.is-disabled):hover {
+  @apply bg-green-40
+}
+
+</style>

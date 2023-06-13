@@ -1,0 +1,25 @@
+.el-tabs__header {
+  @apply bg-white-100 py-3 px-6;
+
+  & .el-tabs__nav {
+    @apply float-none justify-between
+  };
+
+  & .el-tabs__item {
+    @apply  text-[16px] md:text-[18px] lg:text-[20px]
+  };
+
+
+}
+
+.el-tabs__item {
+  @apply hover:text-green-80;
+
+  &.is-active {
+    @apply text-green-80
+  }
+}
+
+.el-tabs__active-bar {
+  @apply bg-green-80
+}

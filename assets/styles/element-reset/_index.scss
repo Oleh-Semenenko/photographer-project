@@ -1,35 +1,119 @@
-@forward 'element-plus/theme-chalk/src/common/var' with (
+@forward 'element-plus/theme-chalk/src/common/var.scss' with (
   $colors: (
     'primary': (
-      'base': #fd823E,
-    ),
-    'success': (
-      'base': #5E8A4F,
-    ),
-    'danger': (
-      'base': #fd3e3e,
+      'base': #6D967A,
     ),
   ),
- );
+  $button: (
+    'text-color': var(--green-100),
+    'bg-color': var(--green-60),
+    'disabled-text-color': var(--grey-100),
+    'disabled-bg-color': var(--grey-50),
+    'hover-text-color': var(--white-100),
+    'hover-bg-color': var(--green-60),
+    'active-bg-color': transparent
+  ),
+  $button-font-size: (
+    'default': 20px
+  ),
+  $button-border-radius: (
+    'default': 2px,
+  ),
+  $input: (
+    'text-color': var(--black-100),
+    'border-color': var(--grey-50),
+    'border-radius': 2px,
+    'icon-color': var(--green-80),
+    'placeholder-color': var(--grey-100),
+    'focus-border-color': var(--green-80),
+  ),
+  $card: (
+    'padding': 0,
+    'border-radius': 2px,
+  ),
+  $select: (
+    'input-font-size': 18px,
+    'input-focus-border-color': var(--green-80)
+  ),
+  $select-option: (
+    'height': 34px,
+    'hover-background': var(--green-40),
+    'selected-text-color': var(--green-80)
+  ),
+  $collapse: (
+    'border-color': var(--grey-50),
+    'header-height': 32px,
+    'header-text-color': var(--green-80),
+    'content-font-size': 16px
+  ),
+  $table: (
+    'border-color': var(--green-60),
+    'header-bg-color': var(--grey-50),
+    'row-hover-bg-color': var(--green-40)
+  ),
+  $select-dropdown: (
+    'empty-padding': 0
+  ),
+  $slider: (
+    'main-bg-color': var(--green-80)
+  ),
+  $radio-button: (
+    'checked-bg-color': var(--green-80),
+    'checked-border-color': transparent,
+  ),
+  $backtop: (
+    'text-color': var(--green-80)
+  ),
+  $datepicker: (
+    'active-color': var(--green-80)
+  ),
+  $pagination: (
+    'hover-color': var(--green-60)
+  )
+);
 
 @use "element-plus/theme-chalk/src/var";
 @use "element-plus/theme-chalk/src/base";
 @use "element-plus/theme-chalk/src/button";
 
+@use "element-plus/theme-chalk/src/container";
+
 @use "element-plus/theme-chalk/src/form";
 @use "element-plus/theme-chalk/src/form-item";
+@use "element-plus/theme-chalk/src/row";
+@use "element-plus/theme-chalk/src/col";
 @use "element-plus/theme-chalk/src/input";
-@use "element-plus/theme-chalk/src/loading";
 @use "element-plus/theme-chalk/src/select";
 @use "element-plus/theme-chalk/src/option";
-@use "element-plus/theme-chalk/src/date-picker";
-@use "element-plus/theme-chalk/src/col";
-@use "element-plus/theme-chalk/src/time-picker";
-@use "element-plus/theme-chalk/src/switch";
-@use "element-plus/theme-chalk/src/checkbox";
-@use "element-plus/theme-chalk/src/checkbox-group";
-@use "element-plus/theme-chalk/src/radio";
-@use "element-plus/theme-chalk/src/radio-group";
-@use "element-plus/theme-chalk/src/popper";
 @use "element-plus/theme-chalk/src/card";
-@use "element-plus/theme-chalk/src/scrollbar";
+@use "element-plus/theme-chalk/src/dropdown";
+@use "element-plus/theme-chalk/src/collapse";
+@use "element-plus/theme-chalk/src/collapse-item";
+@use "element-plus/theme-chalk/src/upload";
+@use "element-plus/theme-chalk/src/dialog";
+@use "element-plus/theme-chalk/src/calendar";
+@use "element-plus/theme-chalk/src/date-picker";
+@use "element-plus/theme-chalk/src/checkbox-button";
+@use "element-plus/theme-chalk/src/table";
+@use "element-plus/theme-chalk/src/table-column";
+@use "element-plus/theme-chalk/src/pagination";
+@use "element-plus/theme-chalk/src/tooltip";
+@use "element-plus/theme-chalk/src/popper";
+@use "element-plus/theme-chalk/src/image";
+@use "element-plus/theme-chalk/src/backtop";
+@use "element-plus/theme-chalk/src/aside";
+@use "element-plus/theme-chalk/src/slider";
+@use "element-plus/theme-chalk/src/checkbox-group";
+@use "element-plus/theme-chalk/src/checkbox";
+@use "element-plus/theme-chalk/src/tabs";
+@use "element-plus/theme-chalk/src/radio-button";
+@use "element-plus/theme-chalk/src/radio";
+@use "element-plus/theme-chalk/src/steps";
+@use "element-plus/theme-chalk/src/step";
+@use "element-plus/theme-chalk/src/time-select";
+@use "element-plus/theme-chalk/src/avatar";
+@use "element-plus/theme-chalk/src/notification";
+@use "element-plus/theme-chalk/src/skeleton";
+@use "element-plus/theme-chalk/src/menu";
+@use "element-plus/theme-chalk/src/drawer";
+@use "element-plus/theme-chalk/src/loading";

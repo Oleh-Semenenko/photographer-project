@@ -1,0 +1,58 @@
+.el-input__wrapper {
+  @apply pr-[1px]
+}
+
+.el-input__inner {
+  @apply h-[40px]
+}
+
+.el-input__suffix {
+  @apply bg-green-40 w-[30px];
+
+  &-inner {
+    @apply w-[40px]
+  }
+}
+
+.el-input-group__append {
+  @apply bg-green-40 text-black-80
+}
+
+.el-icon.el-input__icon.el-input__password {
+  @apply ml-0;
+}
+
+.el-icon.el-select__caret.el-select__icon {
+  @apply ml-0;
+}
+
+.el-checkbox .el-checkbox__label {
+  @apply text-[16px] lg:text-[18px] pl-3 text-black-100;
+}
+
+.el-upload-dragger {
+  @apply bg-grey-10 py-4 h-full flex flex-col items-center justify-center;
+}
+
+.el-checkbox__input {
+  & .el-checkbox__inner {
+    @apply w-[20px] lg:w-[24px] h-[20px] lg:h-[24px];
+  };
+
+  & .el-checkbox__inner:hover {
+    @apply border-green-80;
+  };
+
+  &.is-checked .el-checkbox__inner {
+    @apply bg-green-80 border-green-80;
+  
+    &::after {
+      transform: rotate(45deg) scaleY(1);
+    }
+  };
+
+  & .el-checkbox__inner::after {
+    @apply relative top-0.5 left-0 m-auto block h-[9px] lg:h-[11px] w-[7px] lg:w-[9px];
+  }
+  
+}

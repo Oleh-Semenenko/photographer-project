@@ -1,0 +1,9 @@
+.el-step {
+  & .el-step__title {
+    @apply hidden md:block
+  };
+
+  &__head {
+    @apply flex items-center
+  }
+}
