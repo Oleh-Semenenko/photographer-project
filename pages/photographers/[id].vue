@@ -237,7 +237,6 @@ const computedCategories = computed(() => {
 })
 
 availableCategories.value = computedCategories.value
-console.log(availableCategories.value)
 </script>
 
 <style lang="scss">

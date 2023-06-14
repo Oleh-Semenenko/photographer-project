@@ -328,7 +328,6 @@ async function handleNextStep () {
     })
   } else if (activeStep.value < 5) {
     activeStep.value = activeStep.value + 1
-    console.log(selectedType.value)
   }
 }
 

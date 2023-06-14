@@ -219,29 +219,19 @@ watch([inputMin, inputMax], (newValues) => {
 const selectedTypes = ref()
 
 async function handleSelectedTypes () {
-  // currentPage.value = 1
   if (selectedTypes.value.length === 0) {
     const res = await getAllPhotographers({ page: currentPage.value })
     totalPhotographersLength.value = res.length
     photographers.value = await getAllPhotographers({ page: currentPage.value, perPage: pageSize.value })
   } else {
-    // const res = await getAllPhotographers({
-    //   categories: selectedTypes.value
-    // })
-    // totalPhotographersLength.value = res.length
-
-    // photographers.value = await getAllPhotographers({
-    //   page: currentPage.value,
-    //   perPage: pageSize.value,
-    //   categories: selectedTypes.value
-    // })
-    const total = await getAllPhotographers({
-      page: currentPage.value,
+    const res = await getAllPhotographers({
       categories: selectedTypes.value
     })
-    totalPhotographersLength.value = total.length
+    totalPhotographersLength.value = res.length
+
     photographers.value = await getAllPhotographers({
       page: currentPage.value,
+      perPage: pageSize.value,
       categories: selectedTypes.value
     })
   }
@@ -283,7 +273,7 @@ watch(cityInput, (newValue) => {
 })
 
 // Ascend/descend filter
-const priceSortSelect = ref(null)
+const priceSortSelect = ref('')
 
 async function handlePriceSort () {
   if (priceSortSelect.value === 'ascend') {
@@ -325,22 +315,6 @@ async function handleClearFilters () {
   totalPhotographersLength.value = res.length
   photographers.value = await getAllPhotographers({ page: currentPage.value, perPage: pageSize.value })
 }
-
-// async function fetchAllPhotographers ({ page, perPage, minPrice, maxPrice, city, categories, freeDay }) {
-//   try {
-//     photographers.value = await getAllPhotographers({
-//       page: page ?? currentPage.value,
-//       perPage: perPage ?? pageSize.value,
-//       minPrice: minPrice ?? inputMin.value,
-//       maxPrice: maxPrice ?? inputMax.value,
-//       city: city ?? cityInput.value,
-//       categories: categories ?? selectedTypes.value,
-//       freeDay: freeDay ?? selectedDate.value
-//     })
-//   } catch (error) {
-//     console.error(error)
-//   }
-// }
 
 const totalPhotographersLength = ref()
 
@@ -387,14 +361,4 @@ onMounted(catalogInit)
 .el-date-editor {
   @apply max-w-[90%]
 }
-
-/* .el-loading-spinner {
-  .el-loading-text {
-    @apply text-green-80
-  };
-
-  .circle {
-    @apply stroke-green-80
-  }
-} */
 </style>

@@ -33,11 +33,11 @@
             :class="{'border-yellow-100 md:border-white-100': props.photographer.promotion,
                      'border-white-100': !props.photographer.promotion}"
           >
-            <NameAbbr v-if="!props.photographer.avatarUrl" class="text-lg" />
+            <NameAbbr v-if="!props.photographer?.avatarUrl" class="text-lg" />
             <img
               v-else
               class="object-cover"
-              :src="props.photographer.avatarUrl"
+              :src="props.photographer?.avatarUrl"
               alt="avatar"
             >
           </div>
