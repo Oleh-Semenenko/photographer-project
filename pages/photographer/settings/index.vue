@@ -52,9 +52,7 @@
                 <el-input
                   v-model="formModel.first_name"
                   placeholder="First Name"
-                >
-                  />
-                </el-input>
+                />
               </el-form-item>
             </el-col>
 
@@ -107,19 +105,11 @@
                   placeholder="Select"
                 >
                   <el-option
+                    v-for="gender in ['Male', 'Female', 'Other']"
+                    :key="gender"
                     class="text-[14px] cursor-pointer"
-                    label="Female"
-                    value="Female"
-                  />
-                  <el-option
-                    class="text-[14px] cursor-pointer"
-                    label="Male"
-                    value="Male"
-                  />
-                  <el-option
-                    class="text-[14px] cursor-pointer"
-                    label="Other"
-                    value="Other"
+                    :label="gender"
+                    :value="gender"
                   />
                 </el-select>
               </el-form-item>
@@ -153,27 +143,6 @@
               </el-form-item>
             </el-col>
           </el-row>
-
-          <el-form-item label="Contacts" prop="socMedia">
-            <el-collapse class="w-full">
-              <el-collapse-item title="telegram">
-                <el-input
-                  v-model="formModel.socMedia.telegram"
-                />
-              </el-collapse-item>
-
-              <el-collapse-item title="instagram">
-                <el-input
-                  v-model="formModel.socMedia.instagram"
-                />
-              </el-collapse-item>
-              <el-collapse-item title="facebook">
-                <el-input
-                  v-model="formModel.socMedia.facebook"
-                />
-              </el-collapse-item>
-            </el-collapse>
-          </el-form-item>
 
           <el-form-item label="About myself" prop="about">
             <el-input
@@ -244,12 +213,7 @@ const formModel = useElFormModel({
   gender: user.value?.user_metadata?.gender,
   experience: user.value?.user_metadata?.experience,
   deliveryTime: user.value?.user_metadata?.deliveryTime,
-  about: user.value?.user_metadata?.about,
-  socMedia: {
-    telegram: user?.value?.user_metadata?.socMedia?.telegram || '',
-    instagram: user?.value?.user_metadata?.socMedia?.instagram || '',
-    facebook: user?.value?.user_metadata?.socMedia?.facebook || ''
-  }
+  about: user.value?.user_metadata?.about
 })
 
 const formRules = useElFormRules({

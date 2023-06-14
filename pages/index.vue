@@ -221,7 +221,7 @@
           >
         </div>
       </div>
-      <NuxtLink :to="{name: 'login'}" class="text-center ">
+      <NuxtLink to="/auth/login" class="text-center ">
         <Button class="w-[300px] lg:w-1/2 lg:ml-[60px] mt-5 md:mt-8 bg-green-80 text-white-100">
           Create account
         </Button>

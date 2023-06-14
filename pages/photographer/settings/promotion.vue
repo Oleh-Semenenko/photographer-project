@@ -66,7 +66,6 @@ import { successNotification } from '../../../utils/notification'
 const promotionStore = usePromotionStore()
 const { getPromotionTypes } = promotionStore
 const photographerStore = usePhotographerStore()
-const { updateUserOptionalData } = photographerStore
 
 const promotionTypes = ref([])
 const selectedPromotionType = ref(promotionTypes.value[0])

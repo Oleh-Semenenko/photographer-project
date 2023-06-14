@@ -9,7 +9,7 @@
           </NuxtLink>
         </li>
         <li>
-          <NuxtLink :to="{name: 'login'}">
+          <NuxtLink to="/auth/login">
             For photographers
           </NuxtLink>
         </li>

@@ -1,10 +1,10 @@
 <template>
   <div>
     <div class="flex justify-between gap-3 md:gap-[10%] mb-6 md:mb-10">
-      <NuxtLink :to="{name: 'login'}" class="w-[45%]">
+      <NuxtLink to="/auth/login" class="w-[45%]">
         <Button class="w-full">Log in</Button>
       </NuxtLink>
-      <NuxtLink :to="{name: 'register'}" class="w-[45%]">
+      <NuxtLink to="/auth/register" class="w-[45%]">
         <Button class="w-full non-active">Create account</Button>
       </NuxtLink>
     </div>
@@ -51,7 +51,8 @@
 </template>
 
 <script lang="ts" setup>
-import { useAuthStore } from '../store/auth'
+import type { ILogin } from '~/pages/auth/auth.types'
+
 definePageMeta({
   layout: 'auth',
   middleware: [
@@ -59,8 +60,7 @@ definePageMeta({
   ]
 })
 
-const authStore = useAuthStore()
-const { login } = authStore
+const client = useSupabaseAuthClient()
 
 const isFormValid = ref(false)
 
@@ -75,6 +75,16 @@ const formRules = useElFormRules({
   email: [useRequiredRule(), useEmailRule()],
   password: [useRequiredRule(), useMinLenRule(6)]
 })
+
+async function login ({ email, password }: ILogin) {
+  const { data } = await client.auth.signInWithPassword({ email, password })
+
+  if (data) {
+    return navigateTo('/photographer')
+  }
+
+  return data
+}
 
 function onSubmit () {
   formRef.value?.validate(async (isValid) => {

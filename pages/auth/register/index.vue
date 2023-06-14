@@ -1,10 +1,10 @@
 <template>
   <div>
     <div class="flex justify-between gap-3 md:gap-[10%] mb-6 md:mb-10">
-      <NuxtLink :to="{name: 'login'}" class="w-[45%]">
+      <NuxtLink to="/auth/login" class="w-[45%]">
         <Button class="w-full non-active">Log in</Button>
       </NuxtLink>
-      <NuxtLink :to="{name: 'register'}" class="w-[45%]">
+      <NuxtLink to="/auth/register" class="w-[45%]">
         <Button class="w-full ">Create account</Button>
       </NuxtLink>
     </div>
@@ -78,16 +78,16 @@
 </template>
 
 <script lang="ts" setup>
-import { useAuthStore } from '../store/auth'
+import type { IRegister } from '~/pages/auth/auth.types'
+
+const client = useSupabaseAuthClient()
+
 definePageMeta({
   layout: 'auth',
   middleware: [
     'auth-middleware'
   ]
 })
-
-const authStore = useAuthStore()
-const { register } = authStore
 
 const checked = ref(false)
 const isFormValid = ref(false)
@@ -107,6 +107,26 @@ const formRules = useElFormRules({
   email: [useRequiredRule(), useEmailRule()],
   password: [useRequiredRule(), useMinLenRule(6)]
 })
+
+async function register ({ email, password, firstName, secondName }: IRegister) {
+  const result = await client.auth.signUp({
+    email,
+    password,
+    options: {
+      emailRedirectTo: 'http://localhost:3000/photographer',
+      data: {
+        first_name: firstName,
+        second_name: secondName
+      }
+    }
+  })
+
+  if (result.data) {
+    return navigateTo('/verify')
+  }
+
+  return result
+}
 
 function onSubmit () {
   formRef.value?.validate(async (isValid) => {
