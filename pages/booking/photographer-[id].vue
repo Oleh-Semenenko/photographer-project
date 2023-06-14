@@ -235,9 +235,9 @@
                   }) }}
                 </p>
               </li>
-              <li v-if="newOrder.time[0] && newOrder.time[1]" class="flex flex-wrap justify-between pb-4">
+              <li v-if="newOrder?.time[0] && newOrder?.time[1]" class="flex flex-wrap justify-between pb-4">
                 <p class="font-serif">Time</p>
-                <p>{{ newOrder.time[0] }} - {{ newOrder.time[1] }}</p>
+                <p>{{ newOrder?.time[0] }} - {{ newOrder?.time[1] }}</p>
               </li>
             </ul>
             <p v-if="selectedType && startTime && endTime" class="border-t border-t-green-60 pt-4 font-semibold">
@@ -274,28 +274,26 @@
 
 <script lang="ts" setup>
 import { storeToRefs } from 'pinia'
-import { usePhotographersStore } from '../../store/photographers'
+import { getOnePhotographer } from '../../services/photographers.service'
 import { useCategoriesStore } from '../../store/categories'
-import { useOrdersStore } from '../../store/orders'
+import { createOrder } from '../../services/orders.service'
 import { formateDate } from '../../utils/formate-date'
+
+import type { ICategory, IOrder } from '~/types/global.types'
 definePageMeta({
   layout: 'user'
 })
 
 // Import store
-const photographersStore = usePhotographersStore()
-const { getOneUser } = photographersStore
 const categoriesStore = useCategoriesStore()
 const { categories } = storeToRefs(categoriesStore)
-const ordersStore = useOrdersStore()
-const { createOrder } = ordersStore
 
 // Fetch data
 const route = useRoute()
-const res = await getOneUser({ userId: route.params.id })
+const res = await getOnePhotographer({ userId: (route.params as any).id })
 const user = ref(res.user)
 
-const selectedType = ref(null)
+const selectedType: Ref<string | undefined> = ref()
 const photoTypes = reactive(user.value.user_metadata.photoTypes)
 
 const computedCategories = computed(() => {
@@ -306,33 +304,31 @@ const computedCategories = computed(() => {
 const availableCategories = reactive(computedCategories.value)
 
 const selectedTypeTitle = computed(() => {
-  return availableCategories.filter(i => i.id === Number(newOrder.photoType))[0].title
+  return availableCategories.filter((i: ICategory) => i.id === Number(newOrder.photoType))[0].title
 })
 
 const activeStep = ref(0)
 
-const selectedDate = ref()
+const selectedDate: Ref<Date | ''> = ref('')
 const startTime = ref()
 const endTime = ref()
 const comment = ref('')
 
 async function handleNextStep () {
   if (activeStep.value === 0) {
-    await formRef.value.validate((valid, fields) => {
+    await formRef.value.validate((valid) => {
       if (valid) {
         newOrder.client_name = formModel.name
         newOrder.client_phone = formModel.phone
         newOrder.client_email = formModel.email
         activeStep.value = activeStep.value + 1
       } else {
-        console.log('error submit!', fields)
         activeStep.value = 0
       }
     })
   } else if (activeStep.value < 5) {
     activeStep.value = activeStep.value + 1
   }
-  console.log(newOrder)
 }
 
 function handleBack () {
@@ -347,9 +343,9 @@ async function handleSendForm () {
 }
 const weekend = reactive(user.value.user_metadata.weekend)
 
-const disabledDate = (time) => {
+const disabledDate = (time: Date) => {
   const dateString = time.toISOString().split('T')[0]
-  return weekend.map(d => d.split('T')[0]).includes(dateString)
+  return weekend.map((d: string) => d.split('T')[0]).includes(dateString)
 }
 
 const formRef = useElFormRef()
@@ -366,8 +362,8 @@ const formRules = useElFormRules({
   phone: [useRequiredRule(), useMinLenRule(6)]
 })
 
-const newOrder = reactive({
-  user_id: route.params.id,
+const newOrder: IOrder = reactive({
+  user_id: (route.params as any).id,
   client_phone: formModel.phone,
   client_name: formModel.name,
   client_email: formModel.email,

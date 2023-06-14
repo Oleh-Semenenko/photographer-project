@@ -16,11 +16,6 @@
                 </NuxtLink>
               </li>
               <li>
-                <NuxtLink :to="{name: 'favourites'}">
-                  Favourites
-                </NuxtLink>
-              </li>
-              <li>
                 <NuxtLink to="/auth/login">
                   For photographers
                 </NuxtLink>
@@ -34,11 +29,6 @@
         <li>
           <NuxtLink :to="{name: 'catalog'}">
             Catalog
-          </NuxtLink>
-        </li>
-        <li>
-          <NuxtLink :to="{name: 'favourites'}">
-            Favourites
           </NuxtLink>
         </li>
         <li>

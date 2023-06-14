@@ -31,10 +31,10 @@ const props = defineProps({
   user: Object
 })
 const selectedDate = ref(new Date())
-const weekend = reactive(props.user.user_metadata.weekend)
+const weekend = reactive(props.user?.user_metadata.weekend)
 
-const disabledDate = (time) => {
+const disabledDate = (time: Date) => {
   const dateString = time.toISOString().split('T')[0]
-  return weekend.map(d => d.split('T')[0]).includes(dateString)
+  return weekend.map((d: string) => d.split('T')[0]).includes(dateString)
 }
 </script>

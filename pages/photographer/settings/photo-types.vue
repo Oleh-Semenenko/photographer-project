@@ -97,13 +97,13 @@
 <script lang="ts" setup>
 import { storeToRefs } from 'pinia'
 import { useCategoriesStore } from '../../../store/categories'
-import { usePhotographerStore } from '../../../store/photographer'
+import { updateUser } from '../photographer.service'
+import { uploadPhotos, getPhotoUrl } from '../../../services/categories.service'
+import type { ICategory } from '~/types/global.types'
+import type { UploadFile, UploadFiles } from 'element-plus'
 const user = useSupabaseUser()
 
-const photographerStore = usePhotographerStore()
-const { updateUserOptionalData } = photographerStore
 const categoriesStore = useCategoriesStore()
-const { uploadPhotos, getPhotoUrl } = categoriesStore
 const { categories } = storeToRefs(categoriesStore)
 
 const dialogFormVisible = ref(false)
@@ -112,14 +112,14 @@ const checkedTypes = reactive(user?.value?.user_metadata?.photoTypes || {})
 
 const uploadedImages = ref()
 
-function handleCardClick (item) {
+function handleCardClick (item: ICategory) {
   if (checkedTypes[item.id]?.isChecked) {
     selectedCategory.value = item
     dialogFormVisible.value = true
   }
 }
 
-async function handleCheckboxChange (id) {
+async function handleCheckboxChange (id: number) {
   if (!checkedTypes[id]) {
     checkedTypes[id] = {
       isChecked: true,
@@ -139,7 +139,7 @@ async function handleCheckboxChange (id) {
   }
   if (!checkedTypes[id].isChecked) {
     delete checkedTypes[id]
-    const result = await updateUserOptionalData({ photoTypes: { ...checkedTypes } })
+    const result = await updateUser({ photoTypes: { ...checkedTypes } })
     result && successNotification('Information about your photo types has been successfully updated')
   }
 }
@@ -154,14 +154,14 @@ async function onSubmit () {
   }
   checkedTypes[id] = formData
 
-  const result = await updateUserOptionalData({ photoTypes: { ...checkedTypes } })
+  const result = await updateUser({ photoTypes: { ...checkedTypes } })
   result && successNotification('Information about your photo types has been successfully updated')
   dialogFormVisible.value = false
 }
 
-const handleUploadSuccess = async (response, uploadFile, uploadFiles) => {
+const handleUploadSuccess = async (_response: any, _uploadFile: UploadFile, uploadFiles: UploadFiles) => {
   const uploadPromises = Array.from(uploadFiles)
-    .map(async photo => {
+    .map(async (photo) => {
       if (photo.raw) {
         const data = await uploadPhotos(photo.raw, selectedCategory.value.title)
         photo.url = await getPhotoUrl(data.path)
@@ -173,11 +173,11 @@ const handleUploadSuccess = async (response, uploadFile, uploadFiles) => {
 
   const result = await Promise.allSettled(uploadPromises)
 
-  uploadedImages.value = result.map(({ value }) => {
-    if (value) {
-      return { url: value }
-    }
-  })
+  uploadedImages.value = result
+    .filter((promiseResult): promiseResult is PromiseFulfilledResult<string> => promiseResult.status === 'fulfilled' && promiseResult.value !== undefined)
+    .map((promiseResult) => {
+      return { url: promiseResult.value }
+    })
 }
 </script>
 

@@ -168,37 +168,35 @@
 </template>
 
 <script lang="ts" setup>
-import { usePhotographerStore } from '../../../store/photographer'
+import type { UploadFile } from 'element-plus'
+import type { IFormModel } from '~/types/global.types'
+import {
+  updateUserEmail,
+  updateUser,
+  uploadAvatar,
+  updateAvatar,
+  getAvatarUrl
+} from '../photographer.service'
+
 definePageMeta({
   middleware: [
     'auth-middleware'
   ]
 })
-const user = useSupabaseUser()
-
-const photographerStore = usePhotographerStore()
-const {
-  updateUser,
-  updateUserEmail,
-  uploadAvatar,
-  updateAvatar,
-  getAvatarUrl,
-  updateUserOptionalData
-} = photographerStore
+const user: any = useSupabaseUser()
 
 const avatarUrl = ref(user.value?.user_metadata?.avatarUrl || null)
 
-const handleAvatarUploadSuccess = async (response,
-  uploadFile) => {
+const handleAvatarUploadSuccess = async (response: any, uploadFile: UploadFile) => {
   if (!avatarUrl.value) {
-    await uploadAvatar(uploadFile.raw, user.value?.id)
+    await uploadAvatar(uploadFile.raw as File, user.value?.id)
   } else {
-    await updateAvatar(uploadFile.raw, user.value?.id)
+    await updateAvatar(uploadFile.raw as File, user.value?.id)
   }
   avatarUrl.value = await getAvatarUrl(`avatar_${user.value?.id}.jpg`)
-  await updateUserOptionalData({ avatarUrl: avatarUrl.value })
+  await updateUser({ avatarUrl: avatarUrl.value })
 
-  avatarUrl.value = URL.createObjectURL(uploadFile.raw)
+  avatarUrl.value = URL.createObjectURL(uploadFile.raw as File)
 }
 
 const formRef = useElFormRef()
@@ -242,7 +240,7 @@ function onSave () {
 
 const currentYear = new Date().getFullYear()
 const startYear = 1930
-const yearOptions = ref([])
+const yearOptions: Ref = ref([])
 
 onMounted(async () => {
   yearOptions.value = Array.from({ length: currentYear - startYear + 1 }).map((_, idx) => ({
@@ -258,7 +256,7 @@ onMounted(async () => {
 watch(formModel, () => {
   formRef.value?.validate((isValid, invalidFields) => {
     if (invalidFields) {
-      formRef.value.clearValidate(Object.keys(invalidFields).filter(item => !formModel[item]))
+      formRef.value.clearValidate(Object.keys(invalidFields).filter(item => !(formModel as IFormModel)[item]))
     }
     isFormValid.value = isValid
   })
