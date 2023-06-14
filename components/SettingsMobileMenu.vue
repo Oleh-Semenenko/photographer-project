@@ -29,7 +29,7 @@
 <script lang="ts" setup>
 const route = useRoute()
 
-function isActive (path) {
+function isActive (path: string) {
   return route.path === path
 }
 </script>

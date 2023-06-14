@@ -37,10 +37,10 @@
             </ul>
 
             <div class="flex items-center justify-between gap-2 mt-5">
-              <NuxtLink :to="'/booking/' + `photographer-${$route.params.id}`">
+              <NuxtLink :to="'/booking/' + `photographer-${($route.params as any).id}`">
                 <Button class="w-[200px]">Book now</Button>
               </NuxtLink>
-              <IconFavourites class="fill-green-80" />
+
               <IconPhone class="fill-green-80" />
             </div>
           </el-card>
@@ -179,10 +179,10 @@
             </div>
 
             <div class="flex items-center justify-between gap-1 mt-3">
-              <NuxtLink :to="'/booking/' + `photographer-${$route.params.id}`">
+              <NuxtLink :to="'/booking/' + `photographer-${($route.params as any).id}`">
                 <Button class="w-[165px]">Book now</Button>
               </NuxtLink>
-              <IconFavourites class="fill-green-80" />
+
               <IconPhone class="fill-green-80" />
             </div>
           </el-card>
@@ -208,7 +208,8 @@
 
 <script lang="ts" setup>
 import { storeToRefs } from 'pinia'
-import { usePhotographersStore } from '../../store/photographers'
+import type { ICategory } from '~/types/global.types'
+import { getOnePhotographer } from '../../services/photographers.service'
 import { useCategoriesStore } from '../../store/categories'
 
 definePageMeta({
@@ -217,8 +218,6 @@ definePageMeta({
 
 const route = useRoute()
 
-const photographersStore = usePhotographersStore()
-const { getOneUser } = photographersStore
 const categoriesStore = useCategoriesStore()
 const { categories } = storeToRefs(categoriesStore)
 
@@ -226,9 +225,9 @@ const portfolio = ref()
 
 const activeName = ref('portfolio')
 
-const availableCategories = ref()
+const availableCategories: Ref<ICategory[]> = ref([])
 
-const data = await getOneUser({ userId: route.params.id })
+const data = await getOnePhotographer({ userId: (route.params as any).id })
 portfolio.value = data.user
 
 const computedCategories = computed(() => {
@@ -238,6 +237,7 @@ const computedCategories = computed(() => {
 })
 
 availableCategories.value = computedCategories.value
+console.log(availableCategories.value)
 </script>
 
 <style lang="scss">

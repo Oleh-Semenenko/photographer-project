@@ -52,6 +52,7 @@
 
 <script lang="ts" setup>
 import type { ILogin } from '~/pages/auth/auth.types'
+import type { IFormModel } from '~/types/global.types'
 
 definePageMeta({
   layout: 'auth',
@@ -98,7 +99,7 @@ function onSubmit () {
 watch(formModel, () => {
   formRef.value?.validate((isValid, invalidFields) => {
     if (invalidFields) {
-      formRef.value.clearValidate(Object.keys(invalidFields).filter(item => !formModel[item]))
+      formRef.value.clearValidate(Object.keys(invalidFields).filter(item => !(formModel as IFormModel)[item]))
     }
     isFormValid.value = isValid
   })

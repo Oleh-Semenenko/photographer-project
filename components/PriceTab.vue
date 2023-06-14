@@ -35,10 +35,12 @@
 </template>
 
 <script lang="ts" setup>
-const props = defineProps({
-  availableCategories: Array,
-  user: Object
-})
+import type { ICategory } from '~/types/global.types'
+
+const props = defineProps<{
+  availableCategories: ICategory[]
+  user: any
+}>()
 
 const photoTypes = reactive(props.user?.user_metadata.photoTypes)
 </script>

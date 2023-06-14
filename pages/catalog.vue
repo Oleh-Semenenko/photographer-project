@@ -141,7 +141,7 @@
             v-for="item in photographers"
             :key="item.id"
           >
-            <OnePhotographerCard :photographer="item" class="hover:scale-105" />
+            <OnePhotographerCard :id="item.id" :photographer="item.user_metadata" class="hover:scale-105" />
           </li>
         </ul>
 
@@ -162,8 +162,8 @@
 
 <script lang="ts" setup>
 import { storeToRefs } from 'pinia'
+import { getAllPhotographers } from '../services/photographers.service'
 import { useCategoriesStore } from '../store/categories'
-import { usePhotographersStore } from '../store/photographers'
 
 definePageMeta({
   layout: 'user'
@@ -171,14 +171,12 @@ definePageMeta({
 
 const drawer = ref(false)
 
-const photographersStore = usePhotographersStore()
-const { getAllPhotographers } = photographersStore
 const categoriesStore = useCategoriesStore()
 const { categories } = storeToRefs(categoriesStore)
 
-const photographers = ref([])
+const photographers: Ref = ref([])
 
-let timeoutId = null
+let timeoutId: number | NodeJS.Timeout | null | undefined = null
 
 // Price filter
 const inputMin = ref(0)
@@ -189,7 +187,7 @@ const priceFilter = ref([0, 100])
 watch(priceFilter, (newValue) => {
   inputMin.value = Number(newValue[0])
   inputMax.value = Number(newValue[1])
-  clearTimeout(timeoutId)
+  clearTimeout(timeoutId as number | NodeJS.Timeout)
   timeoutId = setTimeout(async () => {
     currentPage.value = 1
     const res = await getAllPhotographers({
@@ -204,7 +202,7 @@ watch(priceFilter, (newValue) => {
 
 watch([inputMin, inputMax], (newValues) => {
   priceFilter.value = newValues
-  clearTimeout(timeoutId)
+  clearTimeout(timeoutId as number | NodeJS.Timeout)
   timeoutId = setTimeout(async () => {
     const res = await getAllPhotographers({ minPrice: String(newValues[0]), maxPrice: String(newValues[1]) })
     totalPhotographersLength.value = res.length
@@ -271,7 +269,7 @@ const cityInput = ref()
 
 watch(cityInput, (newValue) => {
   currentPage.value = 1
-  clearTimeout(timeoutId)
+  clearTimeout(timeoutId as number | NodeJS.Timeout)
   timeoutId = setTimeout(async () => {
     if (!newValue) {
       const res = await getAllPhotographers({ page: currentPage.value })
@@ -289,15 +287,15 @@ const priceSortSelect = ref(null)
 
 async function handlePriceSort () {
   if (priceSortSelect.value === 'ascend') {
-    photographers.value = photographers.value.sort((a, b) => {
+    photographers.value = photographers.value.sort((a: any, b: any) => {
       return computedMinCost(a.user_metadata.photoTypes) - computedMinCost(b.user_metadata.photoTypes)
     })
   } else if (priceSortSelect.value === 'descend') {
-    photographers.value = photographers.value.sort((a, b) => {
+    photographers.value = photographers.value.sort((a: any, b: any) => {
       return computedMinCost(b.user_metadata.photoTypes) - computedMinCost(a.user_metadata.photoTypes)
     })
   } else {
-    photographers.value = fetchAllPhotographers({ page: 1 })
+    photographers.value = await getAllPhotographers({ page: 1 })
   }
 }
 
@@ -306,7 +304,7 @@ async function handlePriceSort () {
 const pageSize = ref(4)
 const currentPage = ref(1)
 
-async function handleCurrentChange (newPage) {
+async function handleCurrentChange (newPage: number) {
   loading.value = true
   currentPage.value = newPage
   photographers.value = await getAllPhotographers({
