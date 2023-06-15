@@ -78,7 +78,12 @@ const formRules = useElFormRules({
 })
 
 async function login ({ email, password }: ILogin) {
-  const { data } = await client.auth.signInWithPassword({ email, password })
+  const { data, error } = await client.auth.signInWithPassword({ email, password })
+
+  if (error) {
+    errorNotification('Your email or password isn`t valid ')
+    throw new Error(error.message)
+  }
 
   if (data) {
     return navigateTo('/photographer')

@@ -52,5 +52,12 @@
 </template>
 
 <script lang="ts" setup>
+import { useCategoriesStore } from '../store/categories'
+
+const categoriesStore = useCategoriesStore()
+const { fetchCategories } = categoriesStore
+
+onMounted(() => fetchCategories())
+
 const drawer = ref(false)
 </script>

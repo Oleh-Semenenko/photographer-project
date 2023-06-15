@@ -113,7 +113,7 @@ async function register ({ email, password, firstName, secondName }: IRegister) 
     email,
     password,
     options: {
-      emailRedirectTo: 'http://localhost:3000/photographer',
+      emailRedirectTo: `${window.location.origin}/photographer`,
       data: {
         first_name: firstName,
         second_name: secondName
@@ -122,7 +122,7 @@ async function register ({ email, password, firstName, secondName }: IRegister) 
   })
 
   if (result.data) {
-    return navigateTo('/verify')
+    successNotification('Please, verify your email')
   }
 
   return result

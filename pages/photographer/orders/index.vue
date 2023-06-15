@@ -247,7 +247,7 @@ const columns = [
 ]
 
 const orders: Ref<IOrder[]> = ref([])
-orders.value = await getAllOrdersById(user.value.id)
+orders.value = await getAllOrdersById(user.value?.id)
 
 const selectedRow: Ref<IOrder | null> = ref(null)
 

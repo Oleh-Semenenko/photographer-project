@@ -11,9 +11,9 @@ export const useCategoriesStore = defineStore('categoriesStore', () => {
       console.error(error)
     }
   }
-  fetchCategories()
 
   return {
-    categories
+    categories,
+    fetchCategories
   }
 })

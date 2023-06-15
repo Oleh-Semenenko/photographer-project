@@ -92,6 +92,12 @@
 
 <script lang="ts" setup>
 import { successNotification } from '~/utils/notification'
+import { useCategoriesStore } from '../store/categories'
+
+const categoriesStore = useCategoriesStore()
+const { fetchCategories } = categoriesStore
+
+onMounted(() => fetchCategories())
 
 const user = useSupabaseUser()
 const client = useSupabaseAuthClient()
