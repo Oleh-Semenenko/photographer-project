@@ -222,7 +222,7 @@ async function handleSelectedTypes () {
   if (selectedTypes.value.length === 0) {
     const res = await getAllPhotographers({ page: currentPage.value })
     totalPhotographersLength.value = res.length
-    photographers.value = await getAllPhotographers({ page: currentPage.value, perPage: pageSize.value })
+    photographers.value = res
   } else {
     const res = await getAllPhotographers({
       categories: selectedTypes.value

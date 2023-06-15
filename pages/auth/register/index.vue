@@ -113,7 +113,7 @@ async function register ({ email, password, firstName, secondName }: IRegister) 
     email,
     password,
     options: {
-      emailRedirectTo: `${window.location.origin}/photographer`,
+      emailRedirectTo: 'https://main--starlit-choux-dfdf4d.netlify.app/photographer',
       data: {
         first_name: firstName,
         second_name: secondName
