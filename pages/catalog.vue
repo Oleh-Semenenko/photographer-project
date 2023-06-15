@@ -106,193 +106,22 @@
           class="mt-3 md:mt-6 grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4"
         >
           <li
-            v-for="item in photographers"
+            v-for="item in filteredPhotographers"
             :key="item.id"
           >
             <OnePhotographerCard :id="item.id" :photographer="item.user_metadata" class="hover:scale-105" />
           </li>
         </ul>
+        <div
+          v-if="filteredPhotographers?.length === 0 && !loading"
+          class="text-[24px] md:text-[32px]"
+        >
+          Sorry, no photographers found
+        </div>
       </div>
     </div>
   </section>
 </template>
-
-<!-- <script lang="ts" setup>
-import { storeToRefs } from 'pinia'
-import { getAllPhotographers } from '../services/photographers.service'
-import { useCategoriesStore } from '../store/categories'
-
-definePageMeta({
-  layout: 'user'
-})
-
-const drawer = ref(false)
-
-const categoriesStore = useCategoriesStore()
-const { categories } = storeToRefs(categoriesStore)
-
-const photographers: Ref = ref([])
-
-let timeoutId: number | NodeJS.Timeout | null | undefined = null
-
-// Price filter
-const inputMin = ref(0)
-const inputMax = ref(100)
-
-const priceFilter = ref([0, 100])
-
-watch(priceFilter, (newValue) => {
-  inputMin.value = Number(newValue[0])
-  inputMax.value = Number(newValue[1])
-  clearTimeout(timeoutId as number | NodeJS.Timeout)
-  timeoutId = setTimeout(async () => {
-    currentPage.value = 1
-    const res = await getAllPhotographers({
-      page: currentPage.value,
-      minPrice: String(newValue[0]),
-      maxPrice: String(newValue[1])
-    })
-    totalPhotographersLength.value = res.length
-    photographers.value = res
-  }, 500)
-})
-
-watch([inputMin, inputMax], (newValues) => {
-  priceFilter.value = newValues
-  clearTimeout(timeoutId as number | NodeJS.Timeout)
-  timeoutId = setTimeout(async () => {
-    const res = await getAllPhotographers({ minPrice: String(newValues[0]), maxPrice: String(newValues[1]) })
-    totalPhotographersLength.value = res.length
-    photographers.value = await getAllPhotographers({
-      page: currentPage.value,
-      perPage: pageSize.value,
-      minPrice: String(newValues[0]),
-      maxPrice: String(newValues[1])
-    })
-  }, 500)
-})
-
-// Categories filter
-const selectedTypes = ref()
-
-async function handleSelectedTypes () {
-  if (selectedTypes.value.length === 0) {
-    const res = await getAllPhotographers({ page: currentPage.value })
-    totalPhotographersLength.value = res.length
-    photographers.value = res
-  } else {
-    const res = await getAllPhotographers({
-      categories: selectedTypes.value
-    })
-    totalPhotographersLength.value = res.length
-
-    photographers.value = await getAllPhotographers({
-      page: currentPage.value,
-      perPage: pageSize.value,
-      categories: selectedTypes.value
-    })
-  }
-}
-
-// Date filter
-const selectedDate = ref('')
-
-async function handleSelectedDate () {
-  currentPage.value = 1
-  const res = await getAllPhotographers({
-    page: currentPage.value,
-    freeDay: selectedDate.value
-  })
-  totalPhotographersLength.value = res.length
-  photographers.value = await getAllPhotographers({
-    page: currentPage.value,
-    perPage: pageSize.value,
-    freeDay: selectedDate.value
-  })
-}
-
-// City filter
-const cityInput = ref()
-
-watch(cityInput, (newValue) => {
-  currentPage.value = 1
-  clearTimeout(timeoutId as number | NodeJS.Timeout)
-  timeoutId = setTimeout(async () => {
-    if (!newValue) {
-      const res = await getAllPhotographers({ page: currentPage.value })
-      totalPhotographersLength.value = res.length
-      photographers.value = await getAllPhotographers({ page: currentPage.value, perPage: pageSize.value })
-    } else {
-      photographers.value = await getAllPhotographers({ page: currentPage.value, city: newValue })
-      totalPhotographersLength.value = photographers.value.length
-    }
-  }, 300)
-})
-
-// Ascend/descend filter
-const priceSortSelect = ref('')
-
-async function handlePriceSort () {
-  if (priceSortSelect.value === 'ascend') {
-    photographers.value = photographers.value.sort((a: any, b: any) => {
-      return computedMinCost(a.user_metadata.photoTypes) - computedMinCost(b.user_metadata.photoTypes)
-    })
-  } else if (priceSortSelect.value === 'descend') {
-    photographers.value = photographers.value.sort((a: any, b: any) => {
-      return computedMinCost(b.user_metadata.photoTypes) - computedMinCost(a.user_metadata.photoTypes)
-    })
-  } else {
-    photographers.value = await getAllPhotographers({ page: 1 })
-  }
-}
-
-// Pagination logic
-
-const pageSize = ref(4)
-const currentPage = ref(1)
-
-async function handleCurrentChange (newPage: number) {
-  loading.value = true
-  currentPage.value = newPage
-  photographers.value = await getAllPhotographers({
-    page: newPage,
-    perPage: pageSize.value,
-    categories: selectedTypes.value
-  })
-  loading.value = false
-}
-
-async function handleClearFilters () {
-  currentPage.value = 1
-  inputMin.value = 0
-  inputMax.value = 100
-  selectedTypes.value = []
-  selectedDate.value = ''
-  const res = await getAllPhotographers({ page: currentPage.value })
-  totalPhotographersLength.value = res.length
-  photographers.value = await getAllPhotographers({ page: currentPage.value, perPage: pageSize.value })
-}
-
-const totalPhotographersLength = ref()
-
-const loading = ref(false)
-
-async function catalogInit () {
-  try {
-    loading.value = true
-    const allPhotographers = await getAllPhotographers({ page: currentPage.value })
-    totalPhotographersLength.value = allPhotographers.length
-    photographers.value = await getAllPhotographers({ page: currentPage.value, perPage: pageSize.value })
-  } catch (error) {
-    console.log(error)
-  } finally {
-    loading.value = false
-  }
-}
-
-onMounted(catalogInit)
-
-</script> -->
 
 <script lang="ts" setup>
 import { storeToRefs } from 'pinia'
@@ -317,7 +146,7 @@ let timeoutId: number | NodeJS.Timeout | null | undefined = null
 const selectedTypes = ref()
 
 function handleSelectedTypes () {
-  filteredPhotographers.value = filterUsersByCategory(
+  filteredPhotographers.value = filterUsers(
     photographers.value,
     selectedTypes.value,
     selectedDate.value)
@@ -327,7 +156,7 @@ function handleSelectedTypes () {
 const selectedDate = ref('')
 
 function handleSelectedDate () {
-  filteredPhotographers.value = filterUsersByCategory(
+  filteredPhotographers.value = filterUsers(
     photographers.value,
     selectedTypes.value,
     selectedDate.value)
@@ -337,16 +166,12 @@ function handleSelectedDate () {
 const cityInput = ref()
 
 watch(cityInput, (newValue) => {
-  currentPage.value = 1
   clearTimeout(timeoutId as number | NodeJS.Timeout)
   timeoutId = setTimeout(async () => {
     if (!newValue) {
-      const res = await getAllPhotographers({ page: currentPage.value })
-      totalPhotographersLength.value = res.length
-      photographers.value = await getAllPhotographers({ page: currentPage.value, perPage: pageSize.value })
+      filteredPhotographers.value = await getAllPhotographers({ page: 1 })
     } else {
-      photographers.value = await getAllPhotographers({ page: currentPage.value, city: newValue })
-      totalPhotographersLength.value = photographers.value.length
+      filteredPhotographers.value = await getAllPhotographers({ page: 1, city: newValue })
     }
   }, 300)
 })
@@ -356,43 +181,34 @@ const priceSortSelect = ref('')
 
 async function handlePriceSort () {
   if (priceSortSelect.value === 'ascend') {
-    photographers.value = photographers.value.sort((a: any, b: any) => {
+    filteredPhotographers.value = filteredPhotographers.value.sort((a: any, b: any) => {
       return computedMinCost(a.user_metadata.photoTypes) - computedMinCost(b.user_metadata.photoTypes)
     })
   } else if (priceSortSelect.value === 'descend') {
-    photographers.value = photographers.value.sort((a: any, b: any) => {
+    filteredPhotographers.value = filteredPhotographers.value.sort((a: any, b: any) => {
       return computedMinCost(b.user_metadata.photoTypes) - computedMinCost(a.user_metadata.photoTypes)
     })
   } else {
-    photographers.value = await getAllPhotographers({ page: 1 })
+    filteredPhotographers.value = await getAllPhotographers({ page: 1 })
   }
 }
 
-// Pagination logic
-
-const pageSize = ref(4)
-const currentPage = ref(1)
-
 async function handleClearFilters () {
-  currentPage.value = 1
   selectedTypes.value = []
   selectedDate.value = ''
-  photographers.value = await getAllPhotographers({ page: currentPage.value })
-  totalPhotographersLength.value = photographers.value.length
+  cityInput.value = ''
+  filteredPhotographers.value = await getAllPhotographers({ page: 1 })
 }
-
-const totalPhotographersLength = ref()
 
 const loading = ref(false)
 
 async function catalogInit () {
   try {
     loading.value = true
-    const allPhotographers = await getAllPhotographers({ page: currentPage.value })
-    totalPhotographersLength.value = allPhotographers?.length
+    const allPhotographers = await getAllPhotographers({ page: 1 })
     photographers.value = allPhotographers
 
-    filteredPhotographers.value = filterUsersByCategory(
+    filteredPhotographers.value = filterUsers(
       allPhotographers,
       selectedTypes.value,
       selectedDate.value)
@@ -403,7 +219,7 @@ async function catalogInit () {
   }
 }
 
-function filterUsersByCategory (
+function filterUsers (
   users: any[],
   selectedCategories: string[],
   selectedDate: string | undefined
