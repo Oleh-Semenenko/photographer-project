@@ -3,22 +3,6 @@
     <div class="container mx-auto px-6 md:flex gap-4">
       <el-aside class="hidden md:block text-center w-1/3">
         <el-card class="p-5 text-left">
-          <div class="space-y-3">
-            <h3 class="text-[20px] lg:text-[22px]">Price per hour</h3>
-            <el-slider
-              v-model="priceFilter"
-              label="Price per hour"
-              range
-              :min="0"
-              :max="100"
-            />
-            <div class="flex justify-between gap-2">
-              <el-input v-model="inputMin" type="number" class="h-7" />
-              <span> - </span>
-              <el-input v-model="inputMax" type="number" class="h-7" />
-            </div>
-          </div>
-
           <div class="space-y-3 mt-5">
             <h3 class="text-[20px] lg:text-[22px]">Types of photography</h3>
 
@@ -89,22 +73,6 @@
               v-model="drawer"
               size="75%"
             >
-              <div class="space-y-3">
-                <h3 class="text-[22px]">Price per hour</h3>
-                <el-slider
-                  v-model="priceFilter"
-                  label="Price per hour"
-                  range
-                  :min="0"
-                  :max="100"
-                />
-                <div class="flex justify-between gap-2">
-                  <el-input v-model="inputMin" type="number" class="h-7" />
-                  <span> - </span>
-                  <el-input v-model="inputMax" type="number" class="h-7" />
-                </div>
-              </div>
-
               <div class="space-y-3 mt-5">
                 <h3 class="text-[22px]">Types of photography</h3>
 
@@ -144,23 +112,12 @@
             <OnePhotographerCard :id="item.id" :photographer="item.user_metadata" class="hover:scale-105" />
           </li>
         </ul>
-
-        <el-pagination
-          v-model:page-size="pageSize"
-          v-model:current-page="currentPage"
-          background
-          layout="prev, pager, next"
-          :total="totalPhotographersLength"
-          class="mt-7 justify-center"
-          hide-on-single-page
-          @current-change="handleCurrentChange"
-        />
       </div>
     </div>
   </section>
 </template>
 
-<script lang="ts" setup>
+<!-- <script lang="ts" setup>
 import { storeToRefs } from 'pinia'
 import { getAllPhotographers } from '../services/photographers.service'
 import { useCategoriesStore } from '../store/categories'
@@ -330,6 +287,143 @@ async function catalogInit () {
     console.log(error)
   } finally {
     loading.value = false
+  }
+}
+
+onMounted(catalogInit)
+
+</script> -->
+
+<script lang="ts" setup>
+import { storeToRefs } from 'pinia'
+import { getAllPhotographers } from '../services/photographers.service'
+import { useCategoriesStore } from '../store/categories'
+
+definePageMeta({
+  layout: 'user'
+})
+
+const drawer = ref(false)
+
+const categoriesStore = useCategoriesStore()
+const { categories } = storeToRefs(categoriesStore)
+
+const photographers: Ref = ref([])
+const filteredPhotographers = ref()
+
+let timeoutId: number | NodeJS.Timeout | null | undefined = null
+
+// Categories filter
+const selectedTypes = ref()
+
+function handleSelectedTypes () {
+  filteredPhotographers.value = filterUsersByCategory(
+    photographers.value,
+    selectedTypes.value,
+    selectedDate.value)
+}
+
+// Date filter
+const selectedDate = ref('')
+
+function handleSelectedDate () {
+  filteredPhotographers.value = filterUsersByCategory(
+    photographers.value,
+    selectedTypes.value,
+    selectedDate.value)
+}
+
+// City filter
+const cityInput = ref()
+
+watch(cityInput, (newValue) => {
+  currentPage.value = 1
+  clearTimeout(timeoutId as number | NodeJS.Timeout)
+  timeoutId = setTimeout(async () => {
+    if (!newValue) {
+      const res = await getAllPhotographers({ page: currentPage.value })
+      totalPhotographersLength.value = res.length
+      photographers.value = await getAllPhotographers({ page: currentPage.value, perPage: pageSize.value })
+    } else {
+      photographers.value = await getAllPhotographers({ page: currentPage.value, city: newValue })
+      totalPhotographersLength.value = photographers.value.length
+    }
+  }, 300)
+})
+
+// Ascend/descend filter
+const priceSortSelect = ref('')
+
+async function handlePriceSort () {
+  if (priceSortSelect.value === 'ascend') {
+    photographers.value = photographers.value.sort((a: any, b: any) => {
+      return computedMinCost(a.user_metadata.photoTypes) - computedMinCost(b.user_metadata.photoTypes)
+    })
+  } else if (priceSortSelect.value === 'descend') {
+    photographers.value = photographers.value.sort((a: any, b: any) => {
+      return computedMinCost(b.user_metadata.photoTypes) - computedMinCost(a.user_metadata.photoTypes)
+    })
+  } else {
+    photographers.value = await getAllPhotographers({ page: 1 })
+  }
+}
+
+// Pagination logic
+
+const pageSize = ref(4)
+const currentPage = ref(1)
+
+async function handleClearFilters () {
+  currentPage.value = 1
+  selectedTypes.value = []
+  selectedDate.value = ''
+  photographers.value = await getAllPhotographers({ page: currentPage.value })
+  totalPhotographersLength.value = photographers.value.length
+}
+
+const totalPhotographersLength = ref()
+
+const loading = ref(false)
+
+async function catalogInit () {
+  try {
+    loading.value = true
+    const allPhotographers = await getAllPhotographers({ page: currentPage.value })
+    totalPhotographersLength.value = allPhotographers?.length
+    photographers.value = allPhotographers
+
+    filteredPhotographers.value = filterUsersByCategory(
+      allPhotographers,
+      selectedTypes.value,
+      selectedDate.value)
+  } catch (error) {
+    console.log(error)
+  } finally {
+    loading.value = false
+  }
+}
+
+function filterUsersByCategory (
+  users: any[],
+  selectedCategories: string[],
+  selectedDate: string | undefined
+) {
+  if (selectedCategories?.length) {
+    users = users.filter((u) => {
+      if (u.user_metadata.photoTypes) {
+        return Object.keys(u.user_metadata.photoTypes).some(k => selectedCategories.includes(k))
+      }
+    })
+    return users
+  } else if (selectedDate) {
+    users = users.filter(u => {
+      if (u.user_metadata.weekend) {
+        return !u.user_metadata.weekend.includes(selectedDate)
+      }
+    })
+    return users
+  } else {
+    return users
   }
 }
 
