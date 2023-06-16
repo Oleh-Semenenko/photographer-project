@@ -301,12 +301,12 @@ const computedCategories = computed(() => {
     return Object.keys(user.value.user_metadata.photoTypes).includes(String(category.id))
   })
 })
+
 const availableCategories = reactive(computedCategories.value)
 
 const selectedTypeTitle = computed(() => {
   return availableCategories.filter((i: ICategory) => i.id === Number(newOrder.photoType))[0].title
 })
-
 const activeStep = ref(0)
 
 const selectedDate: Ref<Date | ''> = ref('')
