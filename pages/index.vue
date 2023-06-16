@@ -18,6 +18,7 @@
         <div class="mt-8 lg:mt-0 w-full lg:max-w-[50%] lg:flex-grow  h-full lg:shrink-0">
           <img
             src="../assets/images/hero.jpg"
+            alt="couple"
           >
         </div>
       </div>

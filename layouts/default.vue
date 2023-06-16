@@ -32,7 +32,7 @@
               class="w-full h-full"
               size="large"
             >
-              <img :src="user?.user_metadata?.avatarUrl">
+              <img :src="user?.user_metadata?.avatarUrl" alt="avatar">
             </el-avatar>
           </div>
 

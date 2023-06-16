@@ -37,7 +37,7 @@
       </template>
       <template #type="{row}">
         <div>
-          {{ categories[row.photoType]?.title }}
+          {{ categories[row.photoType - 1]?.title }}
         </div>
       </template>
       <template #phone="{row}">
@@ -144,7 +144,7 @@
               <div class="shrink">
                 <h3 class="text-green-80 text-[16px] md:text-[20px] font-serif font-normal">Type</h3>
                 <p class="text-[14px] md:text-[18px]">
-                  {{ categories[selectedRow.photoType as any].title }}
+                  {{ categories[(selectedRow.photoType - 1) as any].title }}
                 </p>
               </div>
             </li>
@@ -247,7 +247,7 @@ const columns = [
 ]
 
 const orders: Ref<IOrder[]> = ref([])
-orders.value = await getAllOrdersById(user.value?.id)
+orders.value = await getAllOrdersById(user.value.id)
 
 const selectedRow: Ref<IOrder | null> = ref(null)
 
