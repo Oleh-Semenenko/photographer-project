@@ -3,12 +3,13 @@ const client = useSupabaseAuthClient()
 export const getCategories = async () => {
   const { data, error } = await client
     .from('categories')
-    .select()
+    .select('*')
 
   if (error) {
     errorNotification()
     throw new Error(error.message)
   }
+  console.log(data)
 
   return data
 }
