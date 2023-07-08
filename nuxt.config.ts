@@ -15,10 +15,6 @@ export default defineNuxtConfig({
     '@pinia/nuxt'
   ],
 
-  // supabase: {
-  //   redirect: 'login'
-  // },
-
   ssr: false,
 
   app: {

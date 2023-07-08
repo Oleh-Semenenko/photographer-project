@@ -16,12 +16,7 @@
                 </NuxtLink>
               </li>
               <li>
-                <NuxtLink :to="{name: 'favourites'}">
-                  Favourites
-                </NuxtLink>
-              </li>
-              <li>
-                <NuxtLink :to="{name: 'login'}">
+                <NuxtLink to="/auth/login">
                   For photographers
                 </NuxtLink>
               </li>
@@ -37,12 +32,7 @@
           </NuxtLink>
         </li>
         <li>
-          <NuxtLink :to="{name: 'favourites'}">
-            Favourites
-          </NuxtLink>
-        </li>
-        <li>
-          <NuxtLink :to="{name: 'login'}">
+          <NuxtLink to="/auth/login">
             For photographers
           </NuxtLink>
         </li>
@@ -62,5 +52,12 @@
 </template>
 
 <script lang="ts" setup>
+import { useCategoriesStore } from '../store/categories'
+
+const categoriesStore = useCategoriesStore()
+const { fetchCategories } = categoriesStore
+
+onMounted(() => fetchCategories())
+
 const drawer = ref(false)
 </script>

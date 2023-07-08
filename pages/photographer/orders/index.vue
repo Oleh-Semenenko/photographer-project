@@ -37,7 +37,7 @@
       </template>
       <template #type="{row}">
         <div>
-          {{ categories[row.photoType].title }}
+          {{ categories[row.photoType - 1]?.title }}
         </div>
       </template>
       <template #phone="{row}">
@@ -60,7 +60,11 @@
       class="sm:hidden space-y-3"
       :currentPage="currentPage"
     >
-      <li v-for="item in paginatedOrders" :key="item.id" @click="handleRowClick(item)">
+      <li
+        v-for="item in paginatedOrders"
+        :key="item?.id"
+        @click="handleRowClick(item)"
+      >
         <el-card class="py-3">
           <div class="px-3 py-2 flex justify-between gap-2">
             <div>
@@ -100,14 +104,13 @@
       :total="orders.length"
       class="mt-7"
       hide-on-single-page
-      @current-change="handleCurrentChange"
     />
 
     <div v-if="selectedRow" class="mt-14">
       <h2 class="relative text-[22px] md:text-[28px] lg:text-[32px] leading-[1.5] mb-6 after-element after:w-[458px]">
         Order details and confirmation
       </h2>
-      <div class="flex flex-col md:flex-row gap-[5%]">
+      <div class="flex flex-col lg:flex-row gap-[5%]">
         <el-card class="md:w-[55%] p-5 md:p-10 shrink-0">
           <div class="flex items-center gap-7">
             <div>
@@ -120,51 +123,55 @@
           </div>
 
           <ul class="grid grid-cols-2 gap-4 mt-9 text-[18px]">
-            <li class="flex gap-4">
+            <li class="flex gap-3 lg:gap-4">
               <IconPhone class="hidden md:block fill-green-100 shrink-0" />
-              <div>
+              <div class="shrink">
                 <h3 class="text-green-80 text-[16px] md:text-[20px] font-serif font-normal">Phone</h3>
                 <p class="text-[14px] md:text-[18px]">{{ selectedRow.client_phone }}</p>
               </div>
             </li>
-            <li class="flex gap-4">
+            <li class="flex gap-3 lg:gap-4">
               <IconCalendar class="hidden md:block fill-green-100 shrink-0" />
-              <div>
+              <div class="shrink">
                 <h3 class="text-green-80 text-[16px] md:text-[20px] font-serif font-normal">Date</h3>
-                <p class="text-[14px] md:text-[18px]">{{ selectedRow.date }}</p>
+                <p class="text-[14px] md:text-[18px]">
+                  {{ formateDate(new Date(selectedRow.date), {day: '2-digit', month: '2-digit', year: 'numeric'}) }}
+                </p>
               </div>
             </li>
-            <li class="flex gap-4">
+            <li class="flex gap-3 lg:gap-4">
               <IconFolder class="hidden md:block fill-green-100 shrink-0" />
-              <div>
+              <div class="shrink">
                 <h3 class="text-green-80 text-[16px] md:text-[20px] font-serif font-normal">Type</h3>
-                <p class="text-[14px] md:text-[18px]">{{ categories[selectedRow.photoType].title }}</p>
+                <p class="text-[14px] md:text-[18px]">
+                  {{ categories[(selectedRow.photoType - 1) as any].title }}
+                </p>
               </div>
             </li>
-            <li class="flex gap-4">
+            <li class="flex gap-3 lg:gap-4">
               <IconClock class="hidden md:block fill-green-100 shrink-0" />
-              <div>
+              <div class="shrink">
                 <h3 class="text-green-80 text-[16px] md:text-[20px] font-serif font-normal">Time</h3>
                 <p class="text-[14px] md:text-[18px]">{{ selectedRow.time[0] }} - {{ selectedRow.time[1] }}</p>
               </div>
             </li>
-            <li class="flex gap-4">
+            <li class="flex gap-3 lg:gap-4">
               <IconLocation class="hidden md:block fill-green-100 shrink-0" />
-              <div>
+              <div class="shrink">
                 <h3 class="text-green-80 text-[16px] md:text-[20px] font-serif font-normal">City</h3>
-                <p class="text-[14px] md:text-[18px]">{{ user.user_metadata.city }}</p>
+                <p class="text-[14px] md:text-[18px]">{{ user?.user_metadata.city }}</p>
               </div>
             </li>
-            <li class="flex gap-4">
+            <li class="flex gap-3 lg:gap-4">
               <IconNotepad class="hidden md:block fill-green-100 shrink-0" />
-              <div>
+              <div class="shrink">
                 <h3 class="text-green-80 text-[16px] md:text-[20px] font-serif font-normal">Order number</h3>
                 <p class="text-[14px] md:text-[18px]">{{ selectedRow.id }}</p>
               </div>
             </li>
-            <li class="flex gap-4">
+            <li class="flex gap-3 lg:gap-4">
               <IconCoins class="hidden md:block fill-green-100 shrink-0" />
-              <div>
+              <div class="shrink">
                 <h3 class="text-green-80 text-[16px] md:text-[20px] font-serif font-normal">Calculation</h3>
                 <p class="text-[14px] md:text-[18px]">
                   Price per hour: {{ costPerHour }} €
@@ -191,7 +198,7 @@
           </ul>
         </el-card>
 
-        <div class="flex flex-col-reverse md:flex-col gap-6">
+        <div class="flex flex-col-reverse lg:flex-col gap-6">
           <Button
             v-if="selectedRow.confirmation === 'Waiting for confirmation'"
             class="flex-grow sm:flex-grow-0" @click="handleConfirmOrder"
@@ -219,14 +226,13 @@
 
 <script lang="ts" setup>
 import { storeToRefs } from 'pinia'
-import { useOrdersStore } from '../../../store/orders'
+import { updateOrderConfirmation, getAllOrdersById } from '../../../services/orders.service'
 import { useCategoriesStore } from '../../../store/categories'
 import { formateDate } from '../../../utils/formate-date'
-const user = useSupabaseUser()
 
-const ordersStore = useOrdersStore()
-const { updateOrderConfirmation } = ordersStore
-const { orders } = storeToRefs(ordersStore)
+import type { IOrder } from '~/types/global.types'
+const user: any = useSupabaseUser()
+
 const categoriesStore = useCategoriesStore()
 const { categories } = storeToRefs(categoriesStore)
 
@@ -240,9 +246,12 @@ const columns = [
   { label: 'Confirmation', value: 'confirmation', width: '' }
 ]
 
-const selectedRow = ref(null)
+const orders: Ref<IOrder[]> = ref([])
+orders.value = await getAllOrdersById(user.value.id)
 
-const handleRowClick = (row) => {
+const selectedRow: Ref<IOrder | null> = ref(null)
+
+const handleRowClick = (row: IOrder) => {
   if (selectedRow.value === row) {
     selectedRow.value = null
   } else {
@@ -253,10 +262,6 @@ const handleRowClick = (row) => {
 const pageSize = ref(4)
 const currentPage = ref(1)
 
-function handleCurrentChange (val) {
-  console.log(`current page: ${val}`)
-}
-
 const paginatedOrders = computed(() => {
   const startIndex = (currentPage.value - 1) * pageSize.value
   const endIndex = startIndex + pageSize.value
@@ -264,31 +269,35 @@ const paginatedOrders = computed(() => {
 })
 
 const costPerHour = computed(() => {
-  return user.value.user_metadata.photoTypes[selectedRow.value.photoType].cost
+  return user.value?.user_metadata.photoTypes[(selectedRow.value as any).photoType].cost
 })
 
-const durationTime = computed(() => {
-  const startTimeParts = selectedRow.value.time[0].split(':')
-  const endTimeParts = selectedRow.value.time[1].split(':')
-  const startTime = new Date(1970, 0, 1, startTimeParts[0], startTimeParts[1])
-  const endTime = new Date(1970, 0, 1, endTimeParts[0], endTimeParts[1])
+const durationTime: ComputedRef<number | undefined> = computed(() => {
+  const startTimeParts = selectedRow.value?.time[0]?.split(':')
+  const endTimeParts = selectedRow.value?.time[1]?.split(':')
+  if (startTimeParts && endTimeParts) {
+    const startTime = new Date(1970, 0, 1, parseInt(startTimeParts[0]), parseInt(startTimeParts[1]))
+    const endTime = new Date(1970, 0, 1, parseInt(endTimeParts[0]), parseInt(endTimeParts[1]))
 
-  return ((endTime - startTime) / (1000 * 60 * 60))
+    return (endTime.getTime() - startTime.getTime()) / (1000 * 60 * 60)
+  }
 })
 
 const totalCost = computed(() => {
-  return durationTime.value * costPerHour.value * 0.05 + durationTime.value * costPerHour.value
+  if (durationTime.value) {
+    return durationTime.value * costPerHour.value * 0.05 + durationTime.value * costPerHour.value
+  }
 })
 
 async function handleConfirmOrder () {
-  if (selectedRow.value.confirmation !== 'Confirmed') {
-    selectedRow.value = await updateOrderConfirmation('Confirmed', selectedRow.value.id)
+  if (selectedRow.value?.confirmation !== 'Confirmed') {
+    selectedRow.value = await updateOrderConfirmation('Confirmed', (selectedRow.value as any).id)
   }
   selectedRow.value = null
 }
 
 async function handleRejectOrder () {
-  await updateOrderConfirmation('Rejected', selectedRow.value.id)
+  await updateOrderConfirmation('Rejected', (selectedRow.value as any).id)
   selectedRow.value = null
 }
 </script>

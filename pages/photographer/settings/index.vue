@@ -52,9 +52,7 @@
                 <el-input
                   v-model="formModel.first_name"
                   placeholder="First Name"
-                >
-                  />
-                </el-input>
+                />
               </el-form-item>
             </el-col>
 
@@ -107,19 +105,11 @@
                   placeholder="Select"
                 >
                   <el-option
+                    v-for="gender in ['Male', 'Female', 'Other']"
+                    :key="gender"
                     class="text-[14px] cursor-pointer"
-                    label="Female"
-                    value="Female"
-                  />
-                  <el-option
-                    class="text-[14px] cursor-pointer"
-                    label="Male"
-                    value="Male"
-                  />
-                  <el-option
-                    class="text-[14px] cursor-pointer"
-                    label="Other"
-                    value="Other"
+                    :label="gender"
+                    :value="gender"
                   />
                 </el-select>
               </el-form-item>
@@ -154,27 +144,6 @@
             </el-col>
           </el-row>
 
-          <el-form-item label="Contacts" prop="socMedia">
-            <el-collapse class="w-full">
-              <el-collapse-item title="telegram">
-                <el-input
-                  v-model="formModel.socMedia.telegram"
-                />
-              </el-collapse-item>
-
-              <el-collapse-item title="instagram">
-                <el-input
-                  v-model="formModel.socMedia.instagram"
-                />
-              </el-collapse-item>
-              <el-collapse-item title="facebook">
-                <el-input
-                  v-model="formModel.socMedia.facebook"
-                />
-              </el-collapse-item>
-            </el-collapse>
-          </el-form-item>
-
           <el-form-item label="About myself" prop="about">
             <el-input
               v-model="formModel.about"
@@ -199,37 +168,35 @@
 </template>
 
 <script lang="ts" setup>
-import { usePhotographerStore } from '../../../store/photographer'
+import type { UploadFile } from 'element-plus'
+import type { IFormModel } from '~/types/global.types'
+import {
+  updateUserEmail,
+  updateUser,
+  uploadAvatar,
+  updateAvatar,
+  getAvatarUrl
+} from '../photographer.service'
+
 definePageMeta({
   middleware: [
     'auth-middleware'
   ]
 })
-const user = useSupabaseUser()
-
-const photographerStore = usePhotographerStore()
-const {
-  updateUser,
-  updateUserEmail,
-  uploadAvatar,
-  updateAvatar,
-  getAvatarUrl,
-  updateUserOptionalData
-} = photographerStore
+const user: any = useSupabaseUser()
 
 const avatarUrl = ref(user.value?.user_metadata?.avatarUrl || null)
 
-const handleAvatarUploadSuccess = async (response,
-  uploadFile) => {
+const handleAvatarUploadSuccess = async (response: any, uploadFile: UploadFile) => {
   if (!avatarUrl.value) {
-    await uploadAvatar(uploadFile.raw, user.value?.id)
+    await uploadAvatar(uploadFile.raw as File, user.value?.id)
   } else {
-    await updateAvatar(uploadFile.raw, user.value?.id)
+    await updateAvatar(uploadFile.raw as File, user.value?.id)
   }
   avatarUrl.value = await getAvatarUrl(`avatar_${user.value?.id}.jpg`)
-  await updateUserOptionalData({ avatarUrl: avatarUrl.value })
+  await updateUser({ avatarUrl: avatarUrl.value })
 
-  avatarUrl.value = URL.createObjectURL(uploadFile.raw)
+  avatarUrl.value = URL.createObjectURL(uploadFile.raw as File)
 }
 
 const formRef = useElFormRef()
@@ -244,12 +211,7 @@ const formModel = useElFormModel({
   gender: user.value?.user_metadata?.gender,
   experience: user.value?.user_metadata?.experience,
   deliveryTime: user.value?.user_metadata?.deliveryTime,
-  about: user.value?.user_metadata?.about,
-  socMedia: {
-    telegram: user?.value?.user_metadata?.socMedia?.telegram || '',
-    instagram: user?.value?.user_metadata?.socMedia?.instagram || '',
-    facebook: user?.value?.user_metadata?.socMedia?.facebook || ''
-  }
+  about: user.value?.user_metadata?.about
 })
 
 const formRules = useElFormRules({
@@ -278,7 +240,7 @@ function onSave () {
 
 const currentYear = new Date().getFullYear()
 const startYear = 1930
-const yearOptions = ref([])
+const yearOptions: Ref = ref([])
 
 onMounted(async () => {
   yearOptions.value = Array.from({ length: currentYear - startYear + 1 }).map((_, idx) => ({
@@ -294,7 +256,7 @@ onMounted(async () => {
 watch(formModel, () => {
   formRef.value?.validate((isValid, invalidFields) => {
     if (invalidFields) {
-      formRef.value.clearValidate(Object.keys(invalidFields).filter(item => !formModel[item]))
+      formRef.value.clearValidate(Object.keys(invalidFields).filter(item => !(formModel as IFormModel)[item]))
     }
     isFormValid.value = isValid
   })

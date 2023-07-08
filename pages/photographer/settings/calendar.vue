@@ -48,19 +48,17 @@
 </template>
 
 <script lang="ts" setup>
-import { usePhotographerStore } from '../../../store/photographer'
+import { updateUser } from '../photographer.service'
 import { formateDate } from '../../../utils/formate-date'
 import { successNotification } from '../../../utils/notification'
+
 const user = useSupabaseUser()
 
-const photographerStore = usePhotographerStore()
-const { updateUserOptionalData } = photographerStore
-
-const date = ref()
-const selectedDates = ref(user.value.user_metadata.weekend || [])
+const date: Ref<string> = ref('')
+const selectedDates: Ref<string[] | []> = ref(user.value?.user_metadata.weekend || [])
 
 const visibleSelectedDates = computed(() => {
-  return selectedDates.value.map(date => formateDate(new Date(date), {
+  return selectedDates.value.map((date: string) => formateDate(new Date(date), {
     year: 'numeric',
     month: 'long',
     day: '2-digit',
@@ -69,12 +67,11 @@ const visibleSelectedDates = computed(() => {
 })
 
 function handleDateChange () {
-  console.log(date.value)
-  selectedDates.value.push(date.value)
+  selectedDates.value.push(date.value as never)
 }
 
-function onDelete (date) {
-  selectedDates.value = selectedDates.value.filter(d => {
+function onDelete (date: string) {
+  selectedDates.value = selectedDates.value.filter((d: string) => {
     return formateDate(new Date(d), {
       year: 'numeric',
       month: 'long',
@@ -89,12 +86,11 @@ function clearAllDates () {
 }
 
 async function onSave () {
-  console.log(selectedDates.value)
-  const data = await updateUserOptionalData({ weekend: [...selectedDates.value] })
+  const data = await updateUser({ weekend: [...selectedDates.value] })
   data && successNotification('Your weekend has been successfully saved')
 }
 
-function disabledDate (date) {
+function disabledDate (date: Date) {
   return date.getTime() < Date.now()
 }
 </script>

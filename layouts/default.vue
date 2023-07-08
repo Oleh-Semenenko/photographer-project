@@ -10,19 +10,13 @@
             gap-3 md:gap-7 lg:gap-11 leading-8"
             >
               <li>
-                <NuxtLink :to="{name: 'catalog'}">
-                  Catalog
-                </NuxtLink>
+                <NuxtLink :to="{name: 'catalog'}">Catalog</NuxtLink>
               </li>
               <li class="shrink-0">
-                <NuxtLink :to="{name: 'photographer'}">
-                  My account
-                </NuxtLink>
+                <NuxtLink :to="{name: 'photographer'}">My account</NuxtLink>
               </li>
               <li>
-                <NuxtLink :to="{name: 'photographer-orders'}">
-                  Orders
-                </NuxtLink>
+                <NuxtLink :to="{name: 'photographer-orders'}">Orders</NuxtLink>
               </li>
             </ul>
           </nav>
@@ -38,13 +32,11 @@
               class="w-full h-full"
               size="large"
             >
-              <img
-                :src="user?.user_metadata?.avatarUrl"
-              >
+              <img :src="user?.user_metadata?.avatarUrl" alt="avatar">
             </el-avatar>
           </div>
 
-          <el-button text class="ml-3" @click="onLogoutClick">Log out</el-button>
+          <el-button text class="ml-3" @click="logout">Log out</el-button>
         </div>
 
         <div class="md:hidden">
@@ -52,8 +44,7 @@
             <div class="flex items-center ">
               <div
                 class="ml-3 md:ml-7 lg:ml-11 flex items-center justify-center w-[50px] md:w-[60px] h-[50px] md:h-[60px]
-            rounded-full shrink-0 overflow-hidden
-            border-[3px] border-green-40"
+                rounded-full shrink-0 overflow-hidden border-[3px] border-green-40"
               >
                 <NameAbbr v-if="!user?.user_metadata?.avatarUrl" class="text-lg" />
                 <img
@@ -69,22 +60,16 @@
             <template #dropdown>
               <el-dropdown-menu>
                 <el-dropdown-item>
-                  <NuxtLink :to="{name: 'catalog'}">
-                    Catalog
-                  </NuxtLink>
+                  <NuxtLink :to="{name: 'catalog'}">Catalog</NuxtLink>
                 </el-dropdown-item>
                 <el-dropdown-item>
-                  <NuxtLink :to="{name: 'photographer'}">
-                    My account
-                  </NuxtLink>
+                  <NuxtLink :to="{name: 'photographer'}">My account</NuxtLink>
                 </el-dropdown-item>
                 <el-dropdown-item>
-                  <NuxtLink :to="{name: 'photographer-orders'}">
-                    Orders
-                  </NuxtLink>
+                  <NuxtLink :to="{name: 'photographer-orders'}">Orders</NuxtLink>
                 </el-dropdown-item>
                 <el-dropdown-item divided>
-                  <el-button text class="" @click="onLogoutClick">Log out</el-button>
+                  <el-button text class="" @click="logout">Log out</el-button>
                 </el-dropdown-item>
               </el-dropdown-menu>
             </template>
@@ -106,15 +91,28 @@
 </template>
 
 <script lang="ts" setup>
-import { useAuthStore } from '../store/auth'
+import { successNotification } from '~/utils/notification'
+import { useCategoriesStore } from '../store/categories'
+
+const categoriesStore = useCategoriesStore()
+const { fetchCategories } = categoriesStore
+
+onMounted(() => fetchCategories())
+
 const user = useSupabaseUser()
+const client = useSupabaseAuthClient()
 
-const authStore = useAuthStore()
-const { logout } = authStore
+async function logout () {
+  const { error } = await client.auth.signOut()
 
-function onLogoutClick () {
-  logout()
-  navigateTo('/login')
+  if (error) {
+    errorNotification()
+    throw new Error(error.message)
+  }
+
+  successNotification('You have successfully logged out.')
+
+  await navigateTo('/auth/login')
 }
 </script>
 
@@ -123,7 +121,6 @@ function onLogoutClick () {
   height: 52px;
 }
 .el-button.is-text:not(.is-disabled):hover {
-  @apply bg-green-40
+  @apply bg-green-40;
 }
-
 </style>

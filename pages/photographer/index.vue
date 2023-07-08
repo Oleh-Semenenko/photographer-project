@@ -25,6 +25,7 @@
             >
               <img
                 :src="user?.user_metadata?.avatarUrl"
+                alt="avatar"
               >
             </el-avatar>
           </div>
@@ -58,13 +59,15 @@
             </div>
           </div>
 
-          <p class="text-[16px] md:text-[18px] text-green-100 font-normal">Preview Profile</p>
+          <NuxtLink :to="`/photographers/${user.id}`">
+            <p class="text-[16px] md:text-[18px] text-green-100 font-normal">Preview Profile</p>
+          </NuxtLink>
         </div>
 
         <p class="text-[16px] md:text-[18px] mt-3 lg:mt-6">Share your profile</p>
         <div class="text-[14px] md:text-[16px] flex items-center gap-1">
-          <p>photographer.com/profile/{{ user.id }}</p>
-          <IconCopy class="fill-green-100 shrink-0" />
+          <p>{{ link }}</p>
+          <IconCopy class="fill-green-100 shrink-0 hover:cursor-pointer" @click="copyLink" />
         </div>
       </el-card>
     </div>
@@ -129,4 +132,16 @@ const userData = reactive({
 const fullName = computed(() => {
   return user?.value?.user_metadata?.first_name + ' ' + user?.value?.user_metadata?.second_name
 })
+
+const link = ref(`https://starlit-choux-dfdf4d.netlify.app/photographers/${user.value?.id}`)
+
+const copyLink = () => {
+  const linkElement = document.createElement('textarea')
+  linkElement.value = link.value
+  document.body.appendChild(linkElement)
+  linkElement.select()
+  document.execCommand('copy')
+  document.body.removeChild(linkElement)
+  successNotification('Your link has been copied')
+}
 </script>

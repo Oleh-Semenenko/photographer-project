@@ -3,22 +3,6 @@
     <div class="container mx-auto px-6 md:flex gap-4">
       <el-aside class="hidden md:block text-center w-1/3">
         <el-card class="p-5 text-left">
-          <div class="space-y-3">
-            <h3 class="text-[20px] lg:text-[22px]">Price per hour</h3>
-            <el-slider
-              v-model="priceFilter"
-              label="Price per hour"
-              range
-              :min="0"
-              :max="100"
-            />
-            <div class="flex justify-between gap-2">
-              <el-input v-model="inputMin" type="number" class="h-7" />
-              <span> - </span>
-              <el-input v-model="inputMax" type="number" class="h-7" />
-            </div>
-          </div>
-
           <div class="space-y-3 mt-5">
             <h3 class="text-[20px] lg:text-[22px]">Types of photography</h3>
 
@@ -89,22 +73,6 @@
               v-model="drawer"
               size="75%"
             >
-              <div class="space-y-3">
-                <h3 class="text-[22px]">Price per hour</h3>
-                <el-slider
-                  v-model="priceFilter"
-                  label="Price per hour"
-                  range
-                  :min="0"
-                  :max="100"
-                />
-                <div class="flex justify-between gap-2">
-                  <el-input v-model="inputMin" type="number" class="h-7" />
-                  <span> - </span>
-                  <el-input v-model="inputMax" type="number" class="h-7" />
-                </div>
-              </div>
-
               <div class="space-y-3 mt-5">
                 <h3 class="text-[22px]">Types of photography</h3>
 
@@ -138,23 +106,18 @@
           class="mt-3 md:mt-6 grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4"
         >
           <li
-            v-for="item in photographers"
+            v-for="item in filteredPhotographers"
             :key="item.id"
           >
-            <OnePhotographerCard :photographer="item" class="hover:scale-105" />
+            <OnePhotographerCard :id="item.id" :photographer="item.user_metadata" class="hover:scale-105" />
           </li>
         </ul>
-
-        <el-pagination
-          v-model:page-size="pageSize"
-          v-model:current-page="currentPage"
-          background
-          layout="prev, pager, next"
-          :total="totalPhotographersLength"
-          class="mt-7 justify-center"
-          hide-on-single-page
-          @current-change="handleCurrentChange"
-        />
+        <div
+          v-if="filteredPhotographers?.length === 0 && !loading"
+          class="text-[24px] md:text-[32px]"
+        >
+          Sorry, no photographers found
+        </div>
       </div>
     </div>
   </section>
@@ -162,8 +125,8 @@
 
 <script lang="ts" setup>
 import { storeToRefs } from 'pinia'
+import { getAllPhotographers } from '../services/photographers.service'
 import { useCategoriesStore } from '../store/categories'
-import { usePhotographersStore } from '../store/photographers'
 
 definePageMeta({
   layout: 'user'
@@ -171,193 +134,112 @@ definePageMeta({
 
 const drawer = ref(false)
 
-const photographersStore = usePhotographersStore()
-const { getAllPhotographers } = photographersStore
 const categoriesStore = useCategoriesStore()
 const { categories } = storeToRefs(categoriesStore)
 
-const photographers = ref([])
+const photographers: Ref = ref([])
+const filteredPhotographers = ref()
 
-let timeoutId = null
-
-// Price filter
-const inputMin = ref(0)
-const inputMax = ref(100)
-
-const priceFilter = ref([0, 100])
-
-watch(priceFilter, (newValue) => {
-  inputMin.value = Number(newValue[0])
-  inputMax.value = Number(newValue[1])
-  clearTimeout(timeoutId)
-  timeoutId = setTimeout(async () => {
-    currentPage.value = 1
-    const res = await getAllPhotographers({
-      page: currentPage.value,
-      minPrice: String(newValue[0]),
-      maxPrice: String(newValue[1])
-    })
-    totalPhotographersLength.value = res.length
-    photographers.value = res
-  }, 500)
-})
-
-watch([inputMin, inputMax], (newValues) => {
-  priceFilter.value = newValues
-  clearTimeout(timeoutId)
-  timeoutId = setTimeout(async () => {
-    const res = await getAllPhotographers({ minPrice: String(newValues[0]), maxPrice: String(newValues[1]) })
-    totalPhotographersLength.value = res.length
-    photographers.value = await getAllPhotographers({
-      page: currentPage.value,
-      perPage: pageSize.value,
-      minPrice: String(newValues[0]),
-      maxPrice: String(newValues[1])
-    })
-  }, 500)
-})
+let timeoutId: number | NodeJS.Timeout | null | undefined = null
 
 // Categories filter
 const selectedTypes = ref()
 
-async function handleSelectedTypes () {
-  // currentPage.value = 1
-  if (selectedTypes.value.length === 0) {
-    const res = await getAllPhotographers({ page: currentPage.value })
-    totalPhotographersLength.value = res.length
-    photographers.value = await getAllPhotographers({ page: currentPage.value, perPage: pageSize.value })
-  } else {
-    // const res = await getAllPhotographers({
-    //   categories: selectedTypes.value
-    // })
-    // totalPhotographersLength.value = res.length
-
-    // photographers.value = await getAllPhotographers({
-    //   page: currentPage.value,
-    //   perPage: pageSize.value,
-    //   categories: selectedTypes.value
-    // })
-    const total = await getAllPhotographers({
-      page: currentPage.value,
-      categories: selectedTypes.value
-    })
-    totalPhotographersLength.value = total.length
-    photographers.value = await getAllPhotographers({
-      page: currentPage.value,
-      categories: selectedTypes.value
-    })
-  }
+function handleSelectedTypes () {
+  filteredPhotographers.value = filterUsers(
+    photographers.value,
+    selectedTypes.value,
+    selectedDate.value)
 }
 
 // Date filter
 const selectedDate = ref('')
 
-async function handleSelectedDate () {
-  currentPage.value = 1
-  const res = await getAllPhotographers({
-    page: currentPage.value,
-    freeDay: selectedDate.value
-  })
-  totalPhotographersLength.value = res.length
-  photographers.value = await getAllPhotographers({
-    page: currentPage.value,
-    perPage: pageSize.value,
-    freeDay: selectedDate.value
-  })
+function handleSelectedDate () {
+  filteredPhotographers.value = filterUsers(
+    photographers.value,
+    selectedTypes.value,
+    selectedDate.value)
 }
 
 // City filter
 const cityInput = ref()
 
 watch(cityInput, (newValue) => {
-  currentPage.value = 1
-  clearTimeout(timeoutId)
+  clearTimeout(timeoutId as number | NodeJS.Timeout)
   timeoutId = setTimeout(async () => {
     if (!newValue) {
-      const res = await getAllPhotographers({ page: currentPage.value })
-      totalPhotographersLength.value = res.length
-      photographers.value = await getAllPhotographers({ page: currentPage.value, perPage: pageSize.value })
+      filteredPhotographers.value = await getAllPhotographers({ page: 1 })
     } else {
-      photographers.value = await getAllPhotographers({ page: currentPage.value, city: newValue })
-      totalPhotographersLength.value = photographers.value.length
+      filteredPhotographers.value = await getAllPhotographers({ page: 1, city: newValue })
     }
   }, 300)
 })
 
 // Ascend/descend filter
-const priceSortSelect = ref(null)
+const priceSortSelect = ref('')
 
 async function handlePriceSort () {
   if (priceSortSelect.value === 'ascend') {
-    photographers.value = photographers.value.sort((a, b) => {
+    filteredPhotographers.value = filteredPhotographers.value.sort((a: any, b: any) => {
       return computedMinCost(a.user_metadata.photoTypes) - computedMinCost(b.user_metadata.photoTypes)
     })
   } else if (priceSortSelect.value === 'descend') {
-    photographers.value = photographers.value.sort((a, b) => {
+    filteredPhotographers.value = filteredPhotographers.value.sort((a: any, b: any) => {
       return computedMinCost(b.user_metadata.photoTypes) - computedMinCost(a.user_metadata.photoTypes)
     })
   } else {
-    photographers.value = fetchAllPhotographers({ page: 1 })
+    filteredPhotographers.value = await getAllPhotographers({ page: 1 })
   }
 }
 
-// Pagination logic
-
-const pageSize = ref(4)
-const currentPage = ref(1)
-
-async function handleCurrentChange (newPage) {
-  loading.value = true
-  currentPage.value = newPage
-  photographers.value = await getAllPhotographers({
-    page: newPage,
-    perPage: pageSize.value,
-    categories: selectedTypes.value
-  })
-  loading.value = false
-}
-
 async function handleClearFilters () {
-  currentPage.value = 1
-  inputMin.value = 0
-  inputMax.value = 100
   selectedTypes.value = []
   selectedDate.value = ''
-  const res = await getAllPhotographers({ page: currentPage.value })
-  totalPhotographersLength.value = res.length
-  photographers.value = await getAllPhotographers({ page: currentPage.value, perPage: pageSize.value })
+  cityInput.value = ''
+  filteredPhotographers.value = await getAllPhotographers({ page: 1 })
 }
-
-// async function fetchAllPhotographers ({ page, perPage, minPrice, maxPrice, city, categories, freeDay }) {
-//   try {
-//     photographers.value = await getAllPhotographers({
-//       page: page ?? currentPage.value,
-//       perPage: perPage ?? pageSize.value,
-//       minPrice: minPrice ?? inputMin.value,
-//       maxPrice: maxPrice ?? inputMax.value,
-//       city: city ?? cityInput.value,
-//       categories: categories ?? selectedTypes.value,
-//       freeDay: freeDay ?? selectedDate.value
-//     })
-//   } catch (error) {
-//     console.error(error)
-//   }
-// }
-
-const totalPhotographersLength = ref()
 
 const loading = ref(false)
 
 async function catalogInit () {
   try {
     loading.value = true
-    const allPhotographers = await getAllPhotographers({ page: currentPage.value })
-    totalPhotographersLength.value = allPhotographers.length
-    photographers.value = await getAllPhotographers({ page: currentPage.value, perPage: pageSize.value })
+    const allPhotographers = await getAllPhotographers({ page: 1 })
+    photographers.value = allPhotographers
+
+    filteredPhotographers.value = filterUsers(
+      allPhotographers,
+      selectedTypes.value,
+      selectedDate.value)
   } catch (error) {
     console.log(error)
   } finally {
     loading.value = false
+  }
+}
+
+function filterUsers (
+  users: any[],
+  selectedCategories: string[],
+  selectedDate: string | undefined
+) {
+  if (selectedCategories?.length) {
+    users = users.filter((u) => {
+      if (u.user_metadata.photoTypes) {
+        return Object.keys(u.user_metadata.photoTypes).some(k => selectedCategories.includes(k))
+      }
+    })
+    return users
+  } else if (selectedDate) {
+    users = users.filter(u => {
+      if (u.user_metadata.weekend) {
+        return !u.user_metadata.weekend.includes(selectedDate)
+      }
+    })
+    return users
+  } else {
+    return users
   }
 }
 
@@ -389,14 +271,4 @@ onMounted(catalogInit)
 .el-date-editor {
   @apply max-w-[90%]
 }
-
-/* .el-loading-spinner {
-  .el-loading-text {
-    @apply text-green-80
-  };
-
-  .circle {
-    @apply stroke-green-80
-  }
-} */
 </style>

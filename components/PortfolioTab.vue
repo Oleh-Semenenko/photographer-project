@@ -13,7 +13,7 @@
     </el-radio-group>
 
     <el-select v-model="checkedType" placeholder="Select category" class="lg:hidden" @change="handleCategorySelect">
-      <el-option>All categories</el-option>
+      <el-option label="All categories" value="All categories">All categories</el-option>
       <el-option
         v-for="item in props.availableCategories"
         :key="item.id"
@@ -80,13 +80,15 @@
 </template>
 
 <script lang="ts" setup>
-const props = defineProps({
-  availableCategories: Array,
-  user: Object
-})
+import type { ICategory, IPhoto, IPhotoTypes } from '~/types/global.types'
+
+const props = defineProps<{
+  availableCategories: ICategory[]
+  user: any
+}>()
 
 const checkedType = ref('All categories')
-const photoTypes = reactive(props.user?.user_metadata.photoTypes)
+const photoTypes: IPhotoTypes = reactive(props.user?.user_metadata.photoTypes)
 const allPhotos = computed(() => {
   return Object.values(photoTypes).flatMap(type => type.photos).map(item => item.url)
 })
@@ -94,7 +96,7 @@ const images = ref(allPhotos.value)
 
 function handleCategorySelect () {
   if (photoTypes.hasOwnProperty(String(checkedType.value))) {
-    images.value = photoTypes[String(checkedType.value)].photos.map(item => item.url)
+    images.value = photoTypes[(String(checkedType.value)) as any].photos.map((item: IPhoto) => item.url)
   } else {
     images.value = allPhotos.value
   }

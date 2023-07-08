@@ -28,13 +28,15 @@
 </template>
 
 <script lang="ts" setup>
-const props = defineProps({
-  headings: Array,
-  items: Array,
-  currentPage: Number,
-  pageSize: Number,
-  handleClick: Function
-})
+import type { IColumn, IOrder } from '~/types/global.types'
+
+const props = defineProps<{
+  headings: IColumn[]
+  items: IOrder[]
+  currentPage: number
+  pageSize: number
+  handleClick: (row: IOrder) => void
+}>()
 
 const pagedRows = computed(() => {
   const startIndex = (props.currentPage - 1) * props.pageSize

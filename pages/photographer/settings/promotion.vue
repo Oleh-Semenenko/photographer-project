@@ -59,19 +59,15 @@
 </template>
 
 <script lang="ts" setup>
-import { usePromotionStore } from '../../../store/promotion'
-import { usePhotographerStore } from '../../../store/photographer'
+import { updateUser } from '../photographer.service'
 import { successNotification } from '../../../utils/notification'
+import type { IPromotionType } from '~/types/global.types'
 
-const promotionStore = usePromotionStore()
-const { getPromotionTypes } = promotionStore
-const photographerStore = usePhotographerStore()
-const { updateUserOptionalData } = photographerStore
+const promotionTypes: Ref<IPromotionType[] | []> = ref([])
+const selectedPromotionType = ref()
 
-const promotionTypes = ref([])
-const selectedPromotionType = ref(promotionTypes.value[0])
 const selectedTypeData = computed(() => {
-  return promotionTypes.value.filter(t => t.id === selectedPromotionType.value)[0]
+  return promotionTypes.value.filter(t => t.id === Number(selectedPromotionType.value))[0]
 })
 
 async function onPromotionTypeSave () {
@@ -79,8 +75,23 @@ async function onPromotionTypeSave () {
     reviews, speedOfOrders, views
     , ...rest
   } = selectedTypeData.value
-  const data = await updateUserOptionalData({ promotion: { ...rest } })
+  const data = await updateUser({ promotion: { ...rest } })
   data && successNotification('Your promotion type has been saved successfully')
+}
+
+const client = useSupabaseClient()
+
+async function getPromotionTypes () {
+  const { data, error } = await client
+    .from('promotion-types')
+    .select()
+
+  if (error) {
+    errorNotification()
+    throw new Error(error.message)
+  }
+
+  return data
 }
 
 onMounted(async () => {
