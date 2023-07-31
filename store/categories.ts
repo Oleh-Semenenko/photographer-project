@@ -7,6 +7,7 @@ export const useCategoriesStore = defineStore('categoriesStore', () => {
   async function fetchCategories () {
     try {
       categories.value = await getCategories()
+      console.log(categories.value)
     } catch (error) {
       console.error(error)
     }
